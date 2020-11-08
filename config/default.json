@@ -1,0 +1,4 @@
+{
+    "serverPort" : 5000,
+    "dbUrl" : "mongodb+srv://dbUser:1987toyuiui@platform.pfgw5.mongodb.net/PLATFORM?retryWrites=true&w=majority"
+}
