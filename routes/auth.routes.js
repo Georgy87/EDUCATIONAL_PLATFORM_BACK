@@ -21,7 +21,7 @@ router.post("/registration", [
         const { email, password , name} = req.body;
 
         const candidate = await User.findOne({ email, name});
-
+        
         if (candidate) {
             return res
                 .status(400)
