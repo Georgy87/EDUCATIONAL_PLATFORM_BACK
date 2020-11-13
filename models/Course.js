@@ -1,5 +1,5 @@
 const { Schema, model, ObjectId } = require("mongoose");
-const File = new Schema({
+const Course = new Schema({
     name: {type: String, required: true},
     user: {type: ObjectId, ref: 'User'},
     profession: {type: String},
@@ -8,4 +8,4 @@ const File = new Schema({
     author: {type: String},
     price: {type: String},
 });
-module.exports = model("File", File);
+module.exports = model("Course", Course);

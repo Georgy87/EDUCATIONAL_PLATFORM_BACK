@@ -1,11 +1,10 @@
-const File = require("../models/File");
+const File = require("../models/Course");
 const Direction = require("../models/Direction");
 const path = require("path");
 const fs = require("fs");
 const Uuid = require("uuid");
 
 class directionController {
-
     async uploadDirection(req, res) {
         try {
             const { direction } = req.body;

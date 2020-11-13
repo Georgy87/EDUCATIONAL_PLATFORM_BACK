@@ -1,5 +1,4 @@
-const File = require("../models/File");
-const Direction = require("../models/Direction");
+const Course = require("../models/Course");
 const path = require("path");
 const fs = require("fs");
 const Uuid = require("uuid");
@@ -18,15 +17,15 @@ class courseController {
             const file = req.files.file;
             const Path = path.join(__dirname, `../static`);
             file.mv(Path + "/" + file.name);
-            console.log(Path + "/" + file.name);
-            let courses = await File.find({ user: req.user.id });
+            // console.log(Path + "/" + file.name);
+            let courses = await Course.find({ user: req.user.id });
 
             const repeateFilter = courses.filter((course) => {
                 return course.name === file.name;
             });
 
             if (repeateFilter.length === 0) {
-                const dbFile = new File({
+                const dbFile = new Course({
                     name: file.name,
                     user: req.user.id,
                     profession: profession,
@@ -46,8 +45,8 @@ class courseController {
 
     async getCourses(req, res) {
         try {
-            let files = await File.find({ user: req.user.id });
-            await res.json(files);
+            let courses = await Course.find({ user: req.user.id });
+            await res.json(courses);
         } catch (e) {
             console.log(e);
         }
