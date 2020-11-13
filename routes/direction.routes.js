@@ -1,10 +1,10 @@
 const Router = require("express");
 const router = new Router();
 const authMiddleWare = require("../middleware/auth.middleware");
-const fileController = require("../controller/fileController");
+const directionController = require("../controller/directionController");
 
-router.post("/direction", authMiddleWare, fileController.uploadFileDirection);
-router.get("/get", authMiddleWare, fileController.getFilesDirection);
+router.post("/upload", authMiddleWare, directionController.uploadDirection);
+router.get("", authMiddleWare, directionController.getDirection);
 
-router.get("/search", authMiddleWare, fileController.filterByDirection);
+router.get("/search", authMiddleWare, directionController.filterByDirection);
 module.exports = router;
