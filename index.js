@@ -5,15 +5,23 @@ const app = express();
 const authRouter = require("./routes/auth.routes");
 const corsmiddleware = require("./middleware/cors.middleware");
 const PORT = config.get("serverPort");
-const fileRouter = require("./routes/file.routes");
+const courseRouter = require("./routes/course.routes");
+const directionRouter = require("./routes/direction.routes");
 const fileUpload = require("express-fileupload")
 
 app.use(fileUpload({}));
+
 app.use(corsmiddleware);
+
 app.use(express.json());
+
 app.use("/api/auth", authRouter);
-app.use("/api/file", fileRouter);
+app.use("/api/course", courseRouter);
+app.use("/api/direction", directionRouter );
+
 app.use(express.static('static'));
+app.use(express.static('static/directions'));
+
 
 const start = async () => {
     try {
