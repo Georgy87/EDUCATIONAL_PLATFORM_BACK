@@ -1,9 +1,9 @@
 const Router = require("express");
 const router = new Router();
 const authMiddleWare = require("../middleware/auth.middleware");
-const fileController = require("../controller/fileController");
+const courseController = require("../controller/courseController");
 
-router.post("/upload", authMiddleWare, fileController.uploadCourse);
-router.get("", authMiddleWare, fileController.getCourses);
+router.post("/upload", authMiddleWare, courseController.uploadCourse);
+router.get("", authMiddleWare, courseController.getCourses);
 
 module.exports = router;
