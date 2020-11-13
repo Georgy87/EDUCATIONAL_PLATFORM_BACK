@@ -5,7 +5,7 @@ const fs = require("fs");
 const Uuid = require("uuid");
 
 class FileController {
-    async uploadFile(req, res) {
+    async uploadCourse(req, res) {
         try {
             const {
                 profession,
@@ -44,7 +44,7 @@ class FileController {
         }
     }
 
-    async getFiles(req, res) {
+    async getCourses(req, res) {
         try {
             let files = await File.find({ user: req.user.id });
             await res.json(files);
@@ -59,7 +59,7 @@ class FileController {
 
             const file = req.files.file;
 
-            const Path = path.join(__dirname, `../static`);
+            const Path = path.join(__dirname, `../static/directions`);
             file.mv(Path + "/" + file.name);
 
             let files = await Direction.find({ user: req.user.id });
