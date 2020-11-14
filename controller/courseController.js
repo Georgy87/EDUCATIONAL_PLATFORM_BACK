@@ -1,4 +1,5 @@
 const Course = require("../models/Course");
+const User = require("../models/User");
 const path = require("path");
 const fs = require("fs");
 const Uuid = require("uuid");
@@ -11,7 +12,7 @@ class courseController {
                 author,
                 price,
                 smallDescription,
-                fullDescription
+                fullDescription,
             } = req.body;
 
             const file = req.files.file;
@@ -32,7 +33,7 @@ class courseController {
                     author: author,
                     price: price,
                     smallDescription: smallDescription,
-                    fullDescription: fullDescription
+                    fullDescription: fullDescription,
                 });
                 await dbFile.save();
                 await res.json(dbFile);
@@ -49,6 +50,19 @@ class courseController {
             await res.json(courses);
         } catch (e) {
             console.log(e);
+        }
+    }
+
+    async deleteCourse(req, res) {
+        try {
+            const course = await Course.findOne({_id: req.query.id});
+            const Path = path.join(__dirname, `../static/${req.query.name}`);
+            fs.unlinkSync(Path);
+            await course.remove();
+            return res.json({message: 'Coure was delete'});
+        } catch (e) {
+            console.log(e);
+            return res.status(400).json({message: 'Delete course error'});
         }
     }
 }
