@@ -48,9 +48,8 @@ class directionController {
     async filterByDirection(req, res) {
         try {
             let files = await File.find();
-
             const directionName = req.query.search;
-            console.log(directionName)
+            console.log(directionName);
             files = files.filter(file => file.profession.includes(directionName));
             console.log(files)
             await res.json(files);
