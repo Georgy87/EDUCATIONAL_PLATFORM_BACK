@@ -21,7 +21,7 @@ app.use("/api/direction", directionRouter );
 
 app.use(express.static('static'));
 app.use(express.static('static/directions'));
-
+app.use(express.static('static/avatars'));
 
 const start = async () => {
     try {
