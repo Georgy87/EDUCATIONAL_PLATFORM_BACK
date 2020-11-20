@@ -3,6 +3,8 @@ const User = require("../models/User");
 const path = require("path");
 const fs = require("fs");
 const Uuid = require("uuid");
+const jwt = require("jsonwebtoken");
+const config = require("config");
 
 class courseController {
     async uploadCourse(req, res) {
@@ -55,14 +57,46 @@ class courseController {
 
     async deleteCourse(req, res) {
         try {
-            const course = await Course.findOne({_id: req.query.id});
+            const course = await Course.findOne({ _id: req.query.id });
             const Path = path.join(__dirname, `../static/${req.query.name}`);
             fs.unlinkSync(Path);
             await course.remove();
-            return res.json({message: 'Coure was delete'});
+            return res.json({ message: "Coure was delete" });
         } catch (e) {
             console.log(e);
-            return res.status(400).json({message: 'Delete course error'});
+            return res.status(400).json({ message: "Delete course error" });
+        }
+    }
+
+    async uploadAvatar(req, res) {
+        try {
+            const file = req.files.file;
+            const avatarName = Uuid.v4() + ".jpg";
+
+            const Path = path.join(__dirname, `../static/avatars`);
+
+            file.mv(Path + "/" + avatarName);
+
+            const user = await User.findById(req.user.id);
+            const token = jwt.sign({ id: user.id }, config.get("secretKey"), {
+                expiresIn: "100h",
+            });
+
+            user.avatar = avatarName;
+            await user.save();
+
+            return res.json({
+                token,
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    avatar: user.avatar,
+                },
+            });
+        } catch (e) {
+            console.log(e);
+            return res.status(400).json({ message: "Upload avatar error" });
         }
     }
 }

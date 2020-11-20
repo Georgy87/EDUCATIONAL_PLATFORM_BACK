@@ -49,16 +49,38 @@ class directionController {
         try {
             let files = await File.find();
             const directionName = req.query.search;
-            console.log(directionName);
-            files = files.filter(file => file.profession.includes(directionName));
-            console.log(files)
+            // console.log(directionName);
+            files = files.filter((file) =>
+                file.profession.includes(directionName)
+            );
+
             await res.json(files);
         } catch (e) {
             console.log(e);
         }
     }
 
+    async deleteDirectionAndCourses(req, res) {
+        try {
+            let files = await File.find({ profession: req.query.direction });
+            const direction = await Direction.findOne({ _id: req.query.id });
 
+            // const pathDirection = path.join(__dirname, `../static/${files.name}`);
+            // fs.unlinkSync(pathDirection);
+
+            // return res.json({message: 'Coure was delete'});
+            files.map((el) => {
+                fs.unlinkSync(path.join(__dirname, `../static/${el.name}`));
+                return el.remove();
+            });
+            fs.unlinkSync(path.join(__dirname, `../static/directions/${direction.name}`));
+           
+            await direction.remove();
+        } catch (e) {
+            console.log(e);
+            return res.status(400).json({ message: "Delete direction error" });
+        }
+    }
 }
 
 module.exports = new directionController();
