@@ -21,7 +21,8 @@ class courseController {
             const Path = path.join(__dirname, `../static`);
             file.mv(Path + "/" + file.name);
             // console.log(Path + "/" + file.name);
-            let courses = await Course.find({ user: req.user.id });
+            // let courses = await Course.find({ user: req.user.id });
+            let courses = await Course.find();
 
             const repeateFilter = courses.filter((course) => {
                 return course.name === file.name;
@@ -30,7 +31,7 @@ class courseController {
             if (repeateFilter.length === 0) {
                 const dbFile = new Course({
                     name: file.name,
-                    user: req.user.id,
+                    // user: req.user.id,
                     profession: profession,
                     author: author,
                     price: price,
@@ -48,7 +49,8 @@ class courseController {
 
     async getCourses(req, res) {
         try {
-            let courses = await Course.find({ user: req.user.id });
+            // let courses = await Course.find({ user: req.user.id });
+            let courses = await Course.find();
             await res.json(courses);
         } catch (e) {
             console.log(e);

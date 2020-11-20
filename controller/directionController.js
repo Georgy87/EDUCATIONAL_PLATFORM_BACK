@@ -8,13 +8,13 @@ class directionController {
     async uploadDirection(req, res) {
         try {
             const { direction } = req.body;
-
             const file = req.files.file;
 
             const Path = path.join(__dirname, `../static/directions`);
             file.mv(Path + "/" + file.name);
 
-            let files = await Direction.find({ user: req.user.id });
+            // let files = await Direction.find({ user: req.user.id });
+            let files = await Direction.find();
 
             const repeateFilter = files.filter((files) => {
                 return files.name === file.name;
@@ -23,7 +23,7 @@ class directionController {
             if (repeateFilter.length === 0) {
                 const dbDirection = new Direction({
                     name: file.name,
-                    user: req.user.id,
+                    // user: req.user.id,
                     direction: direction,
                 });
                 await dbDirection.save();
@@ -37,7 +37,8 @@ class directionController {
 
     async getDirection(req, res) {
         try {
-            let files = await Direction.find({ user: req.user.id });
+            // let files = await Direction.find({ user: req.user.id });
+            let files = await Direction.find();
 
             await res.json(files);
         } catch (e) {
@@ -74,7 +75,7 @@ class directionController {
                 return el.remove();
             });
             fs.unlinkSync(path.join(__dirname, `../static/directions/${direction.name}`));
-           
+
             await direction.remove();
         } catch (e) {
             console.log(e);
