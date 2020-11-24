@@ -101,6 +101,18 @@ class courseController {
             return res.status(400).json({ message: "Upload avatar error" });
         }
     }
+
+    async getProfileCourse(req, res) {
+        try {
+            const id = req.query.id;
+
+            let courses = await Course.find();
+            const courseProfile = courses.filter(course => course._id == id);
+            await res.json(courseProfile);
+        } catch (e) {
+            console.log(e);
+        }
+    }
 }
 
 module.exports = new courseController();

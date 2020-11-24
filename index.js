@@ -7,7 +7,8 @@ const corsmiddleware = require("./middleware/cors.middleware");
 const PORT = config.get("serverPort");
 const courseRouter = require("./routes/course.routes");
 const directionRouter = require("./routes/direction.routes");
-const fileUpload = require("express-fileupload")
+const teacherContentRouter = require("./routes/teacher.routes");
+const fileUpload = require("express-fileupload");
 
 app.use(fileUpload({}));
 
@@ -17,11 +18,13 @@ app.use(express.json());
 
 app.use("/api/auth", authRouter);
 app.use("/api/course", courseRouter);
-app.use("/api/direction", directionRouter );
+app.use("/api/direction", directionRouter);
+app.use("/api/teacher", teacherContentRouter);
 
-app.use(express.static('static'));
-app.use(express.static('static/directions'));
-app.use(express.static('static/avatars'));
+app.use(express.static("static"));
+app.use(express.static("static/directions"));
+app.use(express.static("static/avatars"));
+app.use(express.static("static/videos"));
 
 const start = async () => {
     try {
