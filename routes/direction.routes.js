@@ -5,9 +5,9 @@ const directionController = require("../controller/directionController");
 
 router.post("/upload", authMiddleWare, directionController.uploadDirection);
 
-router.get("", authMiddleWare, directionController.getDirection);
+router.get("", directionController.getDirection);
 
-router.get("/search", authMiddleWare, directionController.filterByDirection);
+router.get("/search", directionController.filterByDirection);
 
 router.delete("/", authMiddleWare, directionController.deleteDirectionAndCourses);
 

@@ -26,8 +26,8 @@ router.post(
                     .json({ message: "Uncorrect request", errors });
             }
 
-            const { email, password, name } = req.body;
-
+            const { email, password, name, surname, teacher } = req.body;
+            console.log(email, password, name, surname, teacher);
             const candidate = await User.findOne({ email, name });
 
             if (candidate) {
@@ -38,7 +38,13 @@ router.post(
 
             const hashPassword = await bcrypt.hash(password, 8);
 
-            const user = new User({ email, password: hashPassword, name });
+            const user = new User({
+                email,
+                password: hashPassword,
+                name,
+                surname,
+                teacher,
+            });
             await user.save();
             return res.json({ message: "User was created" });
         } catch (e) {
@@ -50,7 +56,7 @@ router.post(
 
 router.post("/login", async (req, res) => {
     try {
-        const { email, password, name } = req.body;
+        const { email, password } = req.body;
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(404).json({ message: "User not fount" });
@@ -68,7 +74,9 @@ router.post("/login", async (req, res) => {
                 id: user.id,
                 email: user.email,
                 name: user.name,
-                avatar: user.avatar
+                surname: user.surname,
+                avatar: user.avatar,
+                teacher: user.teacher,
             },
         });
     } catch (e) {
@@ -89,7 +97,9 @@ router.get("/auth", authMiddleWare, async (req, res) => {
                 id: user.id,
                 email: user.email,
                 name: user.name,
+                surname: user.surname,
                 avatar: user.avatar,
+                teacher: user.teacher
             },
         });
     } catch (e) {
