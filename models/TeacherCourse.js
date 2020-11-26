@@ -7,6 +7,10 @@ const TeacherCourse = new Schema({
     price: {type: String},
     smallDescription: {type: String},
     fullDescription: {type: String},
+
+    // name: {type: String, required: true},
+    user: { type: ObjectId, ref: "User" },
+
     content: [{ type: Object }],
 });
 module.exports = model("TeacherCourse", TeacherCourse);

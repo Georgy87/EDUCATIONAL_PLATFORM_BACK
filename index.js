@@ -22,6 +22,9 @@ app.use("/api/direction", directionRouter);
 app.use("/api/teacher", teacherContentRouter);
 
 app.use(express.static("static/coursePhotos"));
+
+app.use(express.static("static"));
+
 app.use(express.static("static/directions"));
 app.use(express.static("static/avatars"));
 app.use(express.static("static/videos"));
