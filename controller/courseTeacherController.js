@@ -10,11 +10,19 @@ const config = require("config");
 class courseTeacherController {
     async uploadNewCourse(req, res) {
         try {
-            // const fileVideo = req.files.file.name;
-            const photo = req.files.file[0].name;
-            const fileVideo = req.files.file[1].name;
+            const fileVideo = req.files.file[0].name;
+            const photo = req.files.file[1].name;
 
-            // const lesson = req.body.lesson;
+            const videoMv = req.files.file[0];
+            const photoMv = req.files.file[1];
+
+            // const photoAdd = req.files.file.name;
+
+            const pathVideos = path.join(__dirname, `../static/videos`);
+            videoMv.mv(pathVideos+ "/" +  videoMv.name);
+
+            const pathPhotos = path.join(__dirname, `../static/coursePhotos`);
+            photoMv.mv(pathPhotos + "/" +  photoMv.name);
 
             const {
                 profession,
@@ -22,10 +30,10 @@ class courseTeacherController {
                 price,
                 smallDescription,
                 fullDescription,
-                lesson
+                lesson,
+                module
             } = req.body;
 
-            console.log(lesson);
             const dbFile = new TeacherCourse({
                 user: req.user.id,
                 photo,
@@ -34,8 +42,11 @@ class courseTeacherController {
                 price,
                 smallDescription,
                 fullDescription,
-                content: [{ fileVideo, lesson: lesson }],
+                content: [{ module: module, fileVideo, lesson: lesson }],
             });
+
+            // const pathVideo = path.join(__dirname, `../static/videos`);
+            // fileMv.mv(pathVideo + "/" + fileVideo);
 
             await dbFile.save();
         } catch (e) {
@@ -47,20 +58,29 @@ class courseTeacherController {
 
     async uploadContentCourse(req, res) {
         try {
-            const file = req.files.file.name;
-            const fileMv = req.files.file;
-            console.log(fileMv);
-            const lesson = req.body.lesson;
+
 
             const parentFile = await TeacherCourse.findOne({
-                _id: "5fbe72335cb9481b761e8adf",
+                user: req.user.id,
             });
 
-            parentFile.content.push({ file, lesson });
-            parentFile.save();
 
+
+
+            const module = req.body.module;
+            console.log(module);
             const Path = path.join(__dirname, `../static/videos`);
-            fileMv.mv(Path + "/" + file);
+         
+            if (req.files != null) {
+                const fileVideo = req.files.file.name;
+                const fileMv = req.files.file;
+                const lesson = req.body.lesson;
+
+                parentFile.content.push({ module: module, fileVideo, lesson });
+                parentFile.save();
+                fileMv.mv(Path + "/" + fileMv.name);
+            }
+
         } catch (e) {
             console.log(e);
             return res
@@ -69,11 +89,11 @@ class courseTeacherController {
         }
     }
     async getTeacherCourses(req, res) {
+
         try {
             const parentFile = await TeacherCourse.findOne({
-                _id: "5fbe72335cb9481b761e8adf",
+                user: req.user.id,
             });
-
             await res.json(parentFile);
         } catch (e) {
             return res.status(500).json({ message: "Get course error" });
