@@ -80,7 +80,7 @@ class courseTeacherController {
             });
 
             const module = req.body.module;
-          
+
             const Path = path.join(__dirname, `../static/videos`);
 
             if (req.files != null) {
@@ -99,32 +99,7 @@ class courseTeacherController {
                 .json({ message: "Upload content course error" });
         }
     }
-    // async getTeacherCourses(req, res) {
-    //     try {
-    //         const parentFile = await TeacherCourse.findOne({
-    //             user: req.user.id,
-    //         });
-    //         // =======
-    //         const file = req.files.file.name;
-    //         const lesson = req.body.lesson;
-
-
-    //         // const parentFile = await TeacherCourse.findOne({
-    //         //     _id: "5fbbf096f7e465626d565545",
-    //         // });
-
-    //         parentFile.content.push({ module: module, file, lesson });
-    //         parentFile.save();
-
-    //         const Path = path.join(__dirname, `../static/videos`);
-    //         file.mv(Path + "/" + file.name);
-    //     } catch (e) {
-    //         console.log(e);
-    //         return res
-    //             .status(500)
-    //             .json({ message: "Upload content course error" });
-    //     }
-    // }
+   
     async getTeacherCourses(req, res) {
         try {
             const parentFile = await TeacherCourse.findOne({
