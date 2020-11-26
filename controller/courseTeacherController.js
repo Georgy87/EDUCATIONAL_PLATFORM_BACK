@@ -99,7 +99,7 @@ class courseTeacherController {
                 .json({ message: "Upload content course error" });
         }
     }
-   //sdfskldf;lsdkf
+   //sdfskldf;lsdkfdfsdf
     async getTeacherCourses(req, res) {
         try {
             const parentFile = await TeacherCourse.findOne({
