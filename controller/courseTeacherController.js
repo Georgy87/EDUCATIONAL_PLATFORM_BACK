@@ -8,49 +8,72 @@ const jwt = require("jsonwebtoken");
 const config = require("config");
 
 class courseTeacherController {
-    async uploadTeacherCourse(req, res) {
+    async uploadNewCourse(req, res) {
         try {
-            const file = req.files.file.name;
-            const lesson = req.body.lesson;
+            // const fileVideo = req.files.file.name;
+            const photo = req.files.file[0].name;
+            const fileVideo = req.files.file[1].name;
 
+            // const lesson = req.body.lesson;
+
+            const {
+                profession,
+                author,
+                price,
+                smallDescription,
+                fullDescription,
+                lesson
+            } = req.body;
+
+            console.log(lesson);
             const dbFile = new TeacherCourse({
                 user: req.user.id,
-                content: [{ file, lesson }],
+                photo,
+                profession,
+                author,
+                price,
+                smallDescription,
+                fullDescription,
+                content: [{ fileVideo, lesson: lesson }],
             });
 
             await dbFile.save();
         } catch (e) {
-            return res.status(500).json({ message: "Upload teacher course error" });
+            return res
+                .status(500)
+                .json({ message: "Upload teacher course error" });
         }
     }
 
     async uploadContentCourse(req, res) {
         try {
-
             const file = req.files.file.name;
+            const fileMv = req.files.file;
+            console.log(fileMv);
             const lesson = req.body.lesson;
 
             const parentFile = await TeacherCourse.findOne({
-                _id: "5fbbf096f7e465626d565545",
+                _id: "5fbe72335cb9481b761e8adf",
             });
 
             parentFile.content.push({ file, lesson });
             parentFile.save();
 
             const Path = path.join(__dirname, `../static/videos`);
-            file.mv(Path + "/" + file.name);
+            fileMv.mv(Path + "/" + file);
         } catch (e) {
             console.log(e);
-            return res.status(500).json({ message: "Upload content course error" });
+            return res
+                .status(500)
+                .json({ message: "Upload content course error" });
         }
     }
     async getTeacherCourses(req, res) {
         try {
-
             const parentFile = await TeacherCourse.findOne({
-                _id: "5fbbf096f7e465626d565545",
+                _id: "5fbe72335cb9481b761e8adf",
             });
-            
+
             await res.json(parentFile);
         } catch (e) {
             return res.status(500).json({ message: "Get course error" });
