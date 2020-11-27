@@ -16,8 +16,6 @@ class courseTeacherController {
             const videoMv = req.files.file[0];
             const photoMv = req.files.file[1];
 
-            // const photoAdd = req.files.file.name;
-
             const pathVideos = path.join(__dirname, `../static/videos`);
             videoMv.mv(pathVideos + "/" + videoMv.name);
 
@@ -44,9 +42,6 @@ class courseTeacherController {
                 fullDescription,
                 content: [{ module: module, fileVideo, lesson: lesson }],
             });
-
-            // const pathVideo = path.join(__dirname, `../static/videos`);
-            // fileMv.mv(pathVideo + "/" + fileVideo);
 
             await dbFile.save();
         } catch (e) {
@@ -80,7 +75,6 @@ class courseTeacherController {
             });
 
             const module = req.body.module;
-
             const Path = path.join(__dirname, `../static/videos`);
 
             if (req.files != null) {
@@ -99,14 +93,12 @@ class courseTeacherController {
                 .json({ message: "Upload content course error" });
         }
     }
-   //sdfskldf;lsdkfdfsdf
+
     async getTeacherCourses(req, res) {
         try {
             const parentFile = await TeacherCourse.findOne({
                 user: req.user.id,
             });
-
-
             await res.json(parentFile);
         } catch (e) {
             return res.status(500).json({ message: "Get course error" });

@@ -1,4 +1,5 @@
 const File = require("../models/Course");
+const TeacherCourse = require("../models/TeacherCourse");
 const Direction = require("../models/Direction");
 const path = require("path");
 const fs = require("fs");
@@ -48,7 +49,7 @@ class directionController {
 
     async filterByDirection(req, res) {
         try {
-            let files = await File.find();
+            let files = await TeacherCourse.find();
             const directionName = req.query.search;
             // console.log(directionName);
             files = files.filter((file) =>

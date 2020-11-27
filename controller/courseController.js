@@ -51,7 +51,6 @@ class courseController {
     async getCourses(req, res) {
         try {
             let courses = await TeacherCourse.find();
-            console.log(courses);
             await res.json(courses);
         } catch (e) {
             console.log(e);
@@ -60,8 +59,8 @@ class courseController {
 
     async deleteCourse(req, res) {
         try {
-            const course = await Course.findOne({ _id: req.query.id });
-            const Path = path.join(__dirname, `../static/${req.query.name}`);
+            const course = await TeacherCourse.findOne({ _id: req.query.id });
+            const Path = path.join(__dirname, `../static/coursePhotos/${req.query.name}`);
             fs.unlinkSync(Path);
             await course.remove();
             return res.json({ message: "Coure was delete" });
@@ -106,8 +105,7 @@ class courseController {
     async getProfileCourse(req, res) {
         try {
             const id = req.query.id;
-
-            let courses = await Course.find();
+            let courses = await TeacherCourse.find();
             const courseProfile = courses.filter(course => course._id == id);
             await res.json(courseProfile);
         } catch (e) {
