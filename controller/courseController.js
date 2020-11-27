@@ -101,7 +101,7 @@ class courseController {
             return res.status(400).json({ message: "Upload avatar error" });
         }
     }
-
+    //fdjgkdlfkgjdlfkgjdlfkgj
     async getProfileCourse(req, res) {
         try {
             const id = req.query.id;
