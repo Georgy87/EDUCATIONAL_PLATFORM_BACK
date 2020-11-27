@@ -5,52 +5,53 @@ const fs = require("fs");
 const Uuid = require("uuid");
 const jwt = require("jsonwebtoken");
 const config = require("config");
+const TeacherCourse = require("../models/TeacherCourse");
 
 class courseController {
-    async uploadCourse(req, res) {
-        try {
-            const {
-                profession,
-                author,
-                price,
-                smallDescription,
-                fullDescription,
-            } = req.body;
+    // async uploadCourse(req, res) {
+    //     try {
+    //         const {
+    //             profession,
+    //             author,
+    //             price,
+    //             smallDescription,
+    //             fullDescription,
+    //         } = req.body;
 
-            const file = req.files.file;
-            const Path = path.join(__dirname, `../static`);
-            file.mv(Path + "/" + file.name);
-            // console.log(Path + "/" + file.name);
-            // let courses = await Course.find({ user: req.user.id });
-            let courses = await Course.find();
+    //         const file = req.files.file;
+    //         const Path = path.join(__dirname, `../static`);
+    //         file.mv(Path + "/" + file.name);
+    //         // console.log(Path + "/" + file.name);
+    //         // let courses = await Course.find({ user: req.user.id });
+    //         let courses = await Course.find();
 
-            const repeateFilter = courses.filter((course) => {
-                return course.name === file.name;
-            });
+    //         const repeateFilter = courses.filter((course) => {
+    //             return course.name === file.name;
+    //         });
 
-            if (repeateFilter.length === 0) {
-                const dbFile = new Course({
-                    name: file.name,
-                    // user: req.user.id,
-                    profession: profession,
-                    author: author,
-                    price: price,
-                    smallDescription: smallDescription,
-                    fullDescription: fullDescription,
-                });
-                await dbFile.save();
-                await res.json(dbFile);
-            }
-        } catch (e) {
-            console.log(e);
-            return res.status(500).json({ message: "Upload error" });
-        }
-    }
+    //         if (repeateFilter.length === 0) {
+    //             const dbFile = new Course({
+    //                 name: file.name,
+    //                 // user: req.user.id,
+    //                 profession: profession,
+    //                 author: author,
+    //                 price: price,
+    //                 smallDescription: smallDescription,
+    //                 fullDescription: fullDescription,
+    //             });
+    //             await dbFile.save();
+    //             await res.json(dbFile);
+    //         }
+    //     } catch (e) {
+    //         console.log(e);
+    //         return res.status(500).json({ message: "Upload error" });
+    //     }
+    // }
 
     async getCourses(req, res) {
         try {
-            // let courses = await Course.find({ user: req.user.id });
-            let courses = await Course.find();
+            let courses = await TeacherCourse.find();
+            console.log(courses);
             await res.json(courses);
         } catch (e) {
             console.log(e);
