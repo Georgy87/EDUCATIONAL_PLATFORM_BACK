@@ -8,45 +8,48 @@ const config = require("config");
 const TeacherCourse = require("../models/TeacherCourse");
 
 class courseController {
-    // async uploadCourse(req, res) {
-    //     try {
-    //         const {
-    //             profession,
-    //             author,
-    //             price,
-    //             smallDescription,
-    //             fullDescription,
-    //         } = req.body;
+    async uploadNewCourse(req, res) {
+        try {
+            const fileVideo = req.files.file[0].name;
+            const photo = req.files.file[1].name;
 
-    //         const file = req.files.file;
-    //         const Path = path.join(__dirname, `../static`);
-    //         file.mv(Path + "/" + file.name);
-    //         // console.log(Path + "/" + file.name);
-    //         // let courses = await Course.find({ user: req.user.id });
-    //         let courses = await Course.find();
+            const videoMv = req.files.file[0];
+            const photoMv = req.files.file[1];
 
-    //         const repeateFilter = courses.filter((course) => {
-    //             return course.name === file.name;
-    //         });
+            const pathVideos = path.join(__dirname, `../static/videos`);
+            videoMv.mv(pathVideos + "/" + videoMv.name);
 
-    //         if (repeateFilter.length === 0) {
-    //             const dbFile = new Course({
-    //                 name: file.name,
-    //                 // user: req.user.id,
-    //                 profession: profession,
-    //                 author: author,
-    //                 price: price,
-    //                 smallDescription: smallDescription,
-    //                 fullDescription: fullDescription,
-    //             });
-    //             await dbFile.save();
-    //             await res.json(dbFile);
-    //         }
-    //     } catch (e) {
-    //         console.log(e);
-    //         return res.status(500).json({ message: "Upload error" });
-    //     }
-    // }
+            const pathPhotos = path.join(__dirname, `../static/coursePhotos`);
+            photoMv.mv(pathPhotos + "/" + photoMv.name);
+
+            const {
+                profession,
+                author,
+                price,
+                smallDescription,
+                fullDescription,
+                lesson,
+                module,
+            } = req.body;
+
+            const dbFile = new TeacherCourse({
+                user: req.user.id,
+                photo,
+                profession,
+                author,
+                price,
+                smallDescription,
+                fullDescription,
+                content: [{ module: module, fileVideo, lesson: lesson }],
+            });
+
+            await dbFile.save();
+        } catch (e) {
+            return res
+                .status(500)
+                .json({ message: "Upload teacher course error" });
+        }
+    }
 
     async getCourses(req, res) {
         try {
@@ -101,7 +104,7 @@ class courseController {
             return res.status(400).json({ message: "Upload avatar error" });
         }
     }
-    //fdjgkdlfkgjdlfkgjdlfkgj
+
     async getProfileCourse(req, res) {
         try {
             const id = req.query.id;
@@ -115,3 +118,46 @@ class courseController {
 }
 
 module.exports = new courseController();
+
+
+
+
+    // async uploadCourse(req, res) {
+    //     try {
+    //         const {
+    //             profession,
+    //             author,
+    //             price,
+    //             smallDescription,
+    //             fullDescription,
+    //         } = req.body;
+
+    //         const file = req.files.file;
+    //         const Path = path.join(__dirname, `../static`);
+    //         file.mv(Path + "/" + file.name);
+    //         // console.log(Path + "/" + file.name);
+    //         // let courses = await Course.find({ user: req.user.id });
+    //         let courses = await Course.find();
+
+    //         const repeateFilter = courses.filter((course) => {
+    //             return course.name === file.name;
+    //         });
+
+    //         if (repeateFilter.length === 0) {
+    //             const dbFile = new Course({
+    //                 name: file.name,
+    //                 // user: req.user.id,
+    //                 profession: profession,
+    //                 author: author,
+    //                 price: price,
+    //                 smallDescription: smallDescription,
+    //                 fullDescription: fullDescription,
+    //             });
+    //             await dbFile.save();
+    //             await res.json(dbFile);
+    //         }
+    //     } catch (e) {
+    //         console.log(e);
+    //         return res.status(500).json({ message: "Upload error" });
+    //     }
+    // }

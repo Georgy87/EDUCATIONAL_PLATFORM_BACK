@@ -8,5 +8,6 @@ router.get("", courseController.getCourses);
 router.delete("/", authMiddleWare, courseController.deleteCourse);
 router.post("/avatar", authMiddleWare, courseController.uploadAvatar);
 router.get("/profile", courseController.getProfileCourse);
+router.post("/course", authMiddleWare, courseController.uploadNewCourse);
 
 module.exports = router;
