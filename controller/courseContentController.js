@@ -6,6 +6,7 @@ const fs = require("fs");
 const Uuid = require("uuid");
 const jwt = require("jsonwebtoken");
 const config = require("config");
+var mongoose = require('mongoose');
 
 class courseContentController {
     async uploadContentCourse(req, res) {
@@ -22,7 +23,7 @@ class courseContentController {
                 const fileMv = req.files.file;
                 const lesson = req.body.lesson;
 
-                parentFile.content.push({ module: module, fileVideo, lesson });
+                parentFile.content.push({ module: module, fileVideo, lesson});
                 parentFile.save();
                 fileMv.mv(Path + "/" + fileMv.name);
             }
@@ -41,10 +42,25 @@ class courseContentController {
             const parentFile = await TeacherCourse.findOne({
                 user: req.user.id,
             });
-            // console.log(parentFile);
-            await res.json(parentFile);
+            await res.json(parentFile.content);
         } catch (e) {
-            return res.status(500).json({ message: "Get course error" });
+            return res.status(500).json({ message: "Get content courses error" });
+        }
+    }
+
+    async deleteLesson(req, res) {
+        try {
+
+            const parentFile = await TeacherCourse.findOne({
+                user: req.user.id,
+            });
+            const filter = parentFile.content.filter(el => el._id.toString() !== req.query.id);
+            parentFile.content = filter;
+
+            parentFile.save();
+            await res.json(parentFile.content);
+        } catch (e) {
+            return res.status(500).json({ message: "Get content courses error" });
         }
     }
 }

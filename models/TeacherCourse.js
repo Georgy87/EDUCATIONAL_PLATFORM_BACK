@@ -8,6 +8,6 @@ const TeacherCourse = new Schema({
     smallDescription: {type: String},
     fullDescription: {type: String},
     user: { type: ObjectId, ref: "User" },
-    content: [{ type: Object }],
+    content: [{ module: String, fileVideo: String, lesson: String, id: ObjectId}],
 });
 module.exports = model("TeacherCourse", TeacherCourse);
