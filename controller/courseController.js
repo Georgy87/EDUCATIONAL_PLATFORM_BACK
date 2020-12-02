@@ -54,6 +54,7 @@ class courseController {
     async getCourses(req, res) {
         try {
             let courses = await TeacherCourse.find();
+            console.log(courses);
             await res.json(courses);
         } catch (e) {
             console.log(e);

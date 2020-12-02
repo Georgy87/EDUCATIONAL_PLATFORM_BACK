@@ -19,6 +19,7 @@ app.use(express.json());
 app.use("/api/auth", authRouter);
 app.use("/api/course", courseRouter);
 app.use("/api/direction", directionRouter);
+app.use("/api/teacher", courseRouter);
 app.use("/api/teacher", courseContentRouter);
 
 app.use(express.static("static/coursePhotos"));

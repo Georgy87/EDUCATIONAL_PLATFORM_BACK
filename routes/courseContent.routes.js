@@ -5,6 +5,8 @@ const courseContentController  = require("../controller/courseContentController"
 
 router.post("/content", authMiddleWare, courseContentController.uploadContentCourse);
 router.get("", authMiddleWare, courseContentController.getContentCourses);
-router.delete("/", authMiddleWare, courseContentController.deleteLesson);
+router.delete("/lesson", authMiddleWare, courseContentController.deleteLesson);
+router.post("/lesson", authMiddleWare, courseContentController.lessonTitleRevision);
+router.post("/link", authMiddleWare, courseContentController.sendLinksToResources);
 
 module.exports = router;
