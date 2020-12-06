@@ -11,22 +11,45 @@ var mongoose = require("mongoose");
 class courseContentController {
     async uploadContentCourse(req, res) {
         try {
-            const parentFile = await TeacherCourse.findOne({
-                user: req.user.id,
+            const courseId = req.query.id;
+            const course = await TeacherCourse.findOne({
+                _id: courseId,
             });
-            const module = req.body.module;
-            const Path = path.join(__dirname, `../static/videos`);
-
             if (req.files != null) {
                 const fileVideo = req.files.file.name;
                 const fileMv = req.files.file;
-                const lesson = req.body.lesson;
+                const { lesson, module } = req.body;
 
-                parentFile.content.push({ module: module, fileVideo, lesson });
-                parentFile.save();
+                course.content.push({
+                    module: module,
+                    moduleContent: [
+                        {
+                            fileVideo: fileVideo,
+                            lesson: lesson,
+                        },
+                    ],
+                });
+                const Path = path.join(__dirname, `../static/videos`);
                 fileMv.mv(Path + "/" + fileMv.name);
+                course.save();
             }
-            await res.json(parentFile);
+
+            // const fileVideo = req.files.file.name;
+            // const fileMv = req.files.file;
+            // const { moduleId, lesson } = req.body;
+            // course.content.map(element => {
+            //     console.log(element);
+            // });
+            // course.content.map((element) => {
+            //     if (element._id.toString() === moduleId) {
+            //         console.log(element);
+            //         // element.moduleContent = [...element.moduleContent, { fileVideo, lesson }];
+            //         // fileMv.mv(Path + "/" + fileMv.name);
+            //         // course.save();
+            //     }
+            // });
+
+            await res.json(course);
         } catch (e) {
             console.log(e);
             return res
@@ -46,6 +69,38 @@ class courseContentController {
             return res
                 .status(500)
                 .json({ message: "Get content courses error" });
+        }
+    }
+
+    async uploadLesson(req, res) {
+        try {
+            const { lesson, moduleId } = req.body;
+
+            const courseId = req.query.id;
+            const fileVideo = req.files.file.name;
+            const fileMv = req.files.file;
+            const course = await TeacherCourse.findOne({
+                _id: courseId,
+            });
+
+            course.content.map((element) => {
+                if (element._id.toString() === moduleId) {
+                    console.log(element.moduleContent);
+                    element.moduleContent.push({
+                        fileVideo,
+                        lesson,
+                        linksToResources: [],
+                    });
+                }
+            });
+
+            const Path = path.join(__dirname, `../static/videos`);
+            fileMv.mv(Path + "/" + fileMv.name);
+            course.save();
+
+            await res.json(course);
+        } catch (e) {
+            return res.status(500).json({ message: "Send links error" });
         }
     }
 
@@ -73,18 +128,23 @@ class courseContentController {
 
     async lessonTitleRevision(req, res) {
         try {
-            const lessonTitle = req.body.newTitle;
-            const lessonId = req.query.id;
-            const parentFile = await TeacherCourse.findOne({
-                user: req.user.id,
+            const { newTitle, lessonId, moduleId } = req.body;
+            const courseId = req.query.courseId;
+            const course = await TeacherCourse.findOne({
+                _id: courseId,
             });
-            parentFile.content.map((element) => {
-                if (element._id.toString() === lessonId) {
-                    element.lesson = lessonTitle;
-                    parentFile.save();
+
+            course.content.map((element) => {
+                if (element._id.toString() === moduleId) {
+                    element.moduleContent.map(element => {
+                        if (element._id.toString() === lessonId) {
+                            element.lesson = newTitle;
+                            course.save();
+                        }
+                    });
                 }
             });
-            await res.json(parentFile);
+            await res.json(course);
         } catch (e) {
             return res
                 .status(500)
@@ -103,8 +163,8 @@ class courseContentController {
 
             course.content.map((element) => {
                 if (element._id.toString() === lessonId) {
-                    element.linksToResources = [...element.linksToResources, { linkName, link }];
-                    course.save();
+                    // element.linksToResources = [...element.linksToResources, { linkName, link }];
+                    // course.save();
                 }
             });
 

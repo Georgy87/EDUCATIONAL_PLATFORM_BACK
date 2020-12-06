@@ -40,7 +40,17 @@ class courseController {
                 price,
                 smallDescription,
                 fullDescription,
-                content: [{ module: module, fileVideo, lesson: lesson }],
+                content: [
+                    {
+                        module: module,
+                        moduleContent: [
+                            {
+                                fileVideo: fileVideo,
+                                lesson: lesson,
+                            },
+                        ],
+                    },
+                ],
             });
 
             await dbFile.save();
@@ -54,7 +64,6 @@ class courseController {
     async getCourses(req, res) {
         try {
             let courses = await TeacherCourse.find();
-            console.log(courses);
             await res.json(courses);
         } catch (e) {
             console.log(e);
@@ -64,7 +73,10 @@ class courseController {
     async deleteCourse(req, res) {
         try {
             const course = await TeacherCourse.findOne({ _id: req.query.id });
-            const Path = path.join(__dirname, `../static/coursePhotos/${req.query.name}`);
+            const Path = path.join(
+                __dirname,
+                `../static/coursePhotos/${req.query.name}`
+            );
             fs.unlinkSync(Path);
             await course.remove();
             return res.json({ message: "Coure was delete" });
@@ -110,7 +122,7 @@ class courseController {
         try {
             const id = req.query.id;
             let courses = await TeacherCourse.find();
-            const courseProfile = courses.filter(course => course._id == id);
+            const courseProfile = courses.filter((course) => course._id == id);
             await res.json(courseProfile);
         } catch (e) {
             console.log(e);
@@ -120,45 +132,42 @@ class courseController {
 
 module.exports = new courseController();
 
+// async uploadCourse(req, res) {
+//     try {
+//         const {
+//             profession,
+//             author,
+//             price,
+//             smallDescription,
+//             fullDescription,
+//         } = req.body;
 
+//         const file = req.files.file;
+//         const Path = path.join(__dirname, `../static`);
+//         file.mv(Path + "/" + file.name);
+//         // console.log(Path + "/" + file.name);
+//         // let courses = await Course.find({ user: req.user.id });
+//         let courses = await Course.find();
 
+//         const repeateFilter = courses.filter((course) => {
+//             return course.name === file.name;
+//         });
 
-    // async uploadCourse(req, res) {
-    //     try {
-    //         const {
-    //             profession,
-    //             author,
-    //             price,
-    //             smallDescription,
-    //             fullDescription,
-    //         } = req.body;
-
-    //         const file = req.files.file;
-    //         const Path = path.join(__dirname, `../static`);
-    //         file.mv(Path + "/" + file.name);
-    //         // console.log(Path + "/" + file.name);
-    //         // let courses = await Course.find({ user: req.user.id });
-    //         let courses = await Course.find();
-
-    //         const repeateFilter = courses.filter((course) => {
-    //             return course.name === file.name;
-    //         });
-
-    //         if (repeateFilter.length === 0) {
-    //             const dbFile = new Course({
-    //                 name: file.name,
-    //                 // user: req.user.id,
-    //                 profession: profession,
-    //                 author: author,
-    //                 price: price,
-    //                 smallDescription: smallDescription,
-    //                 fullDescription: fullDescription,
-    //             });
-    //             await dbFile.save();
-    //             await res.json(dbFile);
-    //         }
-    //     } catch (e) {
-    //         console.log(e);
-    //         return res.status(500).json({ message: "Upload error" });
-    //     }
-    // }
+//         if (repeateFilter.length === 0) {
+//             const dbFile = new Course({
+//                 name: file.name,
+//                 // user: req.user.id,
+//                 profession: profession,
+//                 author: author,
+//                 price: price,
+//                 smallDescription: smallDescription,
+//                 fullDescription: fullDescription,
+//             });
+//             await dbFile.save();
+//             await res.json(dbFile);
+//         }
+//     } catch (e) {
+//         console.log(e);
+//         return res.status(500).json({ message: "Upload error" });
+//     }
+// }

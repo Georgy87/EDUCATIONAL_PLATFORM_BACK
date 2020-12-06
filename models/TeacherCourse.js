@@ -11,12 +11,16 @@ const TeacherCourse = new Schema({
     content: [
         {
             module: String,
-            fileVideo: String,
-            lesson: String,
-            linksToResources: [
+            moduleContent: [
                 {
-                    linkName: String,
-                    link: String
+                    fileVideo: String,
+                    lesson: String,
+                    linksToResources: [
+                        {
+                            linkName: String,
+                            link: String,
+                        },
+                    ],
                 },
             ],
             id: ObjectId,
