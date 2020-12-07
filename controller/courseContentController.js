@@ -85,7 +85,6 @@ class courseContentController {
             });
             let val = 0;
             course.content.map((element) => {
-
                 if (element._id.toString() === moduleId) {
                     console.log(element.moduleContent);
                     element.moduleContent.push({
@@ -95,8 +94,7 @@ class courseContentController {
                     });
                 }
 
-                val += element.moduleContent.length
-
+                val += element.moduleContent.length;
             });
             console.log(val);
             const Path = path.join(__dirname, `../static/videos`);
@@ -131,35 +129,30 @@ class courseContentController {
         // }
 
         try {
-            const {  moduleId, lessonId, videoName } = req.body;
+            const { moduleId, lessonId, videoName } = req.body;
 
             const courseId = req.query.courseId;
-            console.log(courseId, moduleId, lessonId, videoName );
-            // const course = await TeacherCourse.findOne({
-            //     _id: courseId,
-            // });
+            const course = await TeacherCourse.findOne({
+                _id: courseId,
+            });
 
-            // course.content.map((element) => {
-            //     if (element._id.toString() === moduleId) {
-            //         element.moduleContent.map(element => {
-            //             const filter = element.filter(
-            //                 (el) => el._id.toString() !== lessonId
-            //             );
-            //             course.element = filter;
-            //             course.save();
-            //         });
-            //     }
-            // });
-            // const Path = path.join(__dirname, `../static/videos/${videoName}`);
-            // fs.unlinkSync(Path);
-            // await res.json(course);
+            course.content.map((element) => {
+                if (element._id.toString() === moduleId) {
+                    const filter = element.moduleContent.filter(
+                        (element) => element._id.toString() !== lessonId
+                    );
+                    element.moduleContent = filter;
+                    course.save();
+                }
+            });
+            const Path = path.join(__dirname, `../static/videos/${videoName}`);
+            fs.unlinkSync(Path);
+            await res.json(course);
         } catch (e) {
             return res
                 .status(500)
-                .json({ message: "Delete content courses error"});
+                .json({ message: "Delete content courses error" });
         }
-
-
     }
 
     async lessonTitleRevision(req, res) {
@@ -172,7 +165,7 @@ class courseContentController {
 
             course.content.map((element) => {
                 if (element._id.toString() === moduleId) {
-                    element.moduleContent.map(element => {
+                    element.moduleContent.map((element) => {
                         if (element._id.toString() === lessonId) {
                             element.lesson = newTitle;
                             course.save();
@@ -190,13 +183,19 @@ class courseContentController {
 
     async sendLinksToResources(req, res) {
         try {
-            const {  moduleId, lessonId, linkName, linksToResources } = req.body;
+            const { moduleId, lessonId, linkName, linksToResources } = req.body;
 
             const courseId = req.query.id;
             const course = await TeacherCourse.findOne({
                 _id: courseId,
             });
-            console.log(courseId, moduleId, lessonId, linkName, linksToResources);
+            console.log(
+                courseId,
+                moduleId,
+                lessonId,
+                linkName,
+                linksToResources
+            );
             // course.content.map((element) => {
             //     if (element._id.toString() === lessonId) {
             //         // element.linksToResources = [...element.linksToResources, { linkName, link }];
@@ -206,9 +205,12 @@ class courseContentController {
 
             course.content.map((element) => {
                 if (element._id.toString() === moduleId) {
-                    element.moduleContent.map(element => {
+                    element.moduleContent.map((element) => {
                         if (element._id.toString() === lessonId) {
-                            element.linksToResources = [...element.linksToResources, { linkName, linksToResources }];
+                            element.linksToResources = [
+                                ...element.linksToResources,
+                                { linkName, linksToResources },
+                            ];
                             course.save();
                         }
                     });
