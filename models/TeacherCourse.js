@@ -18,7 +18,7 @@ const TeacherCourse = new Schema({
                     linksToResources: [
                         {
                             linkName: String,
-                            link: String,
+                            linksToResources: String,
                         },
                     ],
                 },

@@ -29,6 +29,8 @@ class courseContentController {
                         },
                     ],
                 });
+                console.log(course.content.length);
+
                 const Path = path.join(__dirname, `../static/videos`);
                 fileMv.mv(Path + "/" + fileMv.name);
                 course.save();
@@ -75,15 +77,15 @@ class courseContentController {
     async uploadLesson(req, res) {
         try {
             const { lesson, moduleId } = req.body;
-
             const courseId = req.query.id;
             const fileVideo = req.files.file.name;
             const fileMv = req.files.file;
             const course = await TeacherCourse.findOne({
                 _id: courseId,
             });
-
+            let val = 0;
             course.content.map((element) => {
+
                 if (element._id.toString() === moduleId) {
                     console.log(element.moduleContent);
                     element.moduleContent.push({
@@ -92,8 +94,11 @@ class courseContentController {
                         linksToResources: [],
                     });
                 }
-            });
 
+                val += element.moduleContent.length
+
+            });
+            console.log(val);
             const Path = path.join(__dirname, `../static/videos`);
             fileMv.mv(Path + "/" + fileMv.name);
             course.save();
@@ -105,25 +110,56 @@ class courseContentController {
     }
 
     async deleteLesson(req, res) {
-        try {
-            const videoName = req.query.name;
+        // try {
+        //     const videoName = req.query.name;
 
-            const parentFile = await TeacherCourse.findOne({
-                user: req.user.id,
-            });
-            const filter = parentFile.content.filter(
-                (el) => el._id.toString() !== req.query.id
-            );
-            parentFile.content = filter;
-            const Path = path.join(__dirname, `../static/videos/${videoName}`);
-            fs.unlinkSync(Path);
-            parentFile.save();
-            await res.json(parentFile);
+        //     const parentFile = await TeacherCourse.findOne({
+        //         user: req.user.id,
+        //     });
+        //     const filter = parentFile.content.filter(
+        //         (el) => el._id.toString() !== req.query.id
+        //     );
+        //     parentFile.content = filter;
+        //     const Path = path.join(__dirname, `../static/videos/${videoName}`);
+        //     fs.unlinkSync(Path);
+        //     parentFile.save();
+        //     await res.json(parentFile);
+        // } catch (e) {
+        //     return res
+        //         .status(500)
+        //         .json({ message: "Delete content courses error" });
+        // }
+
+        try {
+            const {  moduleId, lessonId, videoName } = req.body;
+
+            const courseId = req.query.courseId;
+            console.log(courseId, moduleId, lessonId, videoName );
+            // const course = await TeacherCourse.findOne({
+            //     _id: courseId,
+            // });
+
+            // course.content.map((element) => {
+            //     if (element._id.toString() === moduleId) {
+            //         element.moduleContent.map(element => {
+            //             const filter = element.filter(
+            //                 (el) => el._id.toString() !== lessonId
+            //             );
+            //             course.element = filter;
+            //             course.save();
+            //         });
+            //     }
+            // });
+            // const Path = path.join(__dirname, `../static/videos/${videoName}`);
+            // fs.unlinkSync(Path);
+            // await res.json(course);
         } catch (e) {
             return res
                 .status(500)
-                .json({ message: "Delete content courses error" });
+                .json({ message: "Delete content courses error"});
         }
+
+
     }
 
     async lessonTitleRevision(req, res) {
@@ -154,17 +190,28 @@ class courseContentController {
 
     async sendLinksToResources(req, res) {
         try {
-            const { link, lessonId, linkName } = req.body;
+            const {  moduleId, lessonId, linkName, linksToResources } = req.body;
 
             const courseId = req.query.id;
             const course = await TeacherCourse.findOne({
                 _id: courseId,
             });
+            console.log(courseId, moduleId, lessonId, linkName, linksToResources);
+            // course.content.map((element) => {
+            //     if (element._id.toString() === lessonId) {
+            //         // element.linksToResources = [...element.linksToResources, { linkName, link }];
+            //         // course.save();
+            //     }
+            // });
 
             course.content.map((element) => {
-                if (element._id.toString() === lessonId) {
-                    // element.linksToResources = [...element.linksToResources, { linkName, link }];
-                    // course.save();
+                if (element._id.toString() === moduleId) {
+                    element.moduleContent.map(element => {
+                        if (element._id.toString() === lessonId) {
+                            element.linksToResources = [...element.linksToResources, { linkName, linksToResources }];
+                            course.save();
+                        }
+                    });
                 }
             });
 
