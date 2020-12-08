@@ -13,7 +13,7 @@ class courseContentController {
         try {
             const courseId = req.query.id;
             const course = await TeacherCourse.findOne({
-                _id: courseId,
+                user: req.user.id,
             });
             if (req.files != null) {
                 const fileVideo = req.files.file.name;
@@ -22,14 +22,18 @@ class courseContentController {
 
                 course.content.push({
                     module: module,
+                    moduleHours: 0,
+                    moduleMinutes: 0,
+                    moduleSeconds: 0,
                     moduleContent: [
                         {
                             fileVideo: fileVideo,
                             lesson: lesson,
+                            lessonTime: ''
                         },
                     ],
                 });
-                console.log(course.content.length);
+                // console.log(course.content.length);
 
                 const Path = path.join(__dirname, `../static/videos`);
                 fileMv.mv(Path + "/" + fileMv.name);
@@ -65,7 +69,6 @@ class courseContentController {
             const parentFile = await TeacherCourse.findOne({
                 user: req.user.id,
             });
-
             await res.json(parentFile);
         } catch (e) {
             return res
@@ -81,7 +84,7 @@ class courseContentController {
             const fileVideo = req.files.file.name;
             const fileMv = req.files.file;
             const course = await TeacherCourse.findOne({
-                _id: courseId,
+                user: req.user.id,
             });
             let val = 0;
             course.content.map((element) => {
@@ -90,13 +93,14 @@ class courseContentController {
                     element.moduleContent.push({
                         fileVideo,
                         lesson,
+                        lessonTime: '',
                         linksToResources: [],
                     });
                 }
 
                 val += element.moduleContent.length;
             });
-            console.log(val);
+            // console.log(val);
             const Path = path.join(__dirname, `../static/videos`);
             fileMv.mv(Path + "/" + fileMv.name);
             course.save();
@@ -133,7 +137,7 @@ class courseContentController {
 
             const courseId = req.query.courseId;
             const course = await TeacherCourse.findOne({
-                _id: courseId,
+                user: req.user.id,
             });
 
             course.content.map((element) => {
@@ -160,7 +164,7 @@ class courseContentController {
             const { newTitle, lessonId, moduleId } = req.body;
             const courseId = req.query.courseId;
             const course = await TeacherCourse.findOne({
-                _id: courseId,
+                user: req.user.id,
             });
 
             course.content.map((element) => {
@@ -187,15 +191,9 @@ class courseContentController {
 
             const courseId = req.query.id;
             const course = await TeacherCourse.findOne({
-                _id: courseId,
+                user: req.user.id,
             });
-            console.log(
-                courseId,
-                moduleId,
-                lessonId,
-                linkName,
-                linksToResources
-            );
+
             // course.content.map((element) => {
             //     if (element._id.toString() === lessonId) {
             //         // element.linksToResources = [...element.linksToResources, { linkName, link }];
@@ -220,6 +218,37 @@ class courseContentController {
             await res.json(course);
         } catch (e) {
             return res.status(500).json({ message: "Send links error" });
+        }
+    }
+
+    async setTimeModuleAndLessons(req, res) {
+        try {
+            const { moduleId, lessonId,  hours, minutes, seconds } = req.body;
+
+            const courseId = req.query.id;
+            const course = await TeacherCourse.findOne({
+                user: req.user.id,
+            });
+
+            course.content.map((element) => {
+                if (element._id.toString() === moduleId) {
+                    element.moduleHours += hours;
+                    element.moduleMinutes += minutes;
+                    element.moduleSeconds += seconds;
+                    // course.save();
+
+                    element.moduleContent.map((element) => {
+                        if (element._id.toString() === lessonId) {
+                            element.lessonTime = hours + ":" + minutes + ":" + seconds;
+                        }
+                    });
+                }
+
+            });
+            course.save();
+            await res.json(course);
+        } catch (e) {
+            return res.status(500).json({ message: "Send time error" });
         }
     }
 }

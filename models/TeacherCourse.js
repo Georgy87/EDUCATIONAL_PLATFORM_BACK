@@ -11,10 +11,14 @@ const TeacherCourse = new Schema({
     content: [
         {
             module: String,
+            moduleHours: Number,
+            moduleMinutes: Number,
+            moduleSeconds: Number,
             moduleContent: [
                 {
                     fileVideo: String,
                     lesson: String,
+                    lessonTime: String,
                     linksToResources: [
                         {
                             linkName: String,

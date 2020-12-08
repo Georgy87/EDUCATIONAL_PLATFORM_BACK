@@ -43,10 +43,14 @@ class courseController {
                 content: [
                     {
                         module: module,
+                        moduleHours: 0,
+                        moduleMinutes: 0,
+                        moduleSeconds: 0,
                         moduleContent: [
                             {
                                 fileVideo: fileVideo,
                                 lesson: lesson,
+                                lessonTime: "",
                             },
                         ],
                     },
@@ -64,6 +68,7 @@ class courseController {
     async getCourses(req, res) {
         try {
             let courses = await TeacherCourse.find();
+            
             await res.json(courses);
         } catch (e) {
             console.log(e);

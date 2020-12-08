@@ -4,10 +4,11 @@ const authMiddleWare = require("../middleware/auth.middleware");
 const courseContentController  = require("../controller/courseContentController");
 
 router.post("/content", authMiddleWare, courseContentController.uploadContentCourse);
-router.get("", authMiddleWare, courseContentController.getContentCourses);
+router.get("/courses", authMiddleWare, courseContentController.getContentCourses);
 router.post("/lesson-upload", authMiddleWare, courseContentController.uploadLesson);
 router.post("/lesson-delete", authMiddleWare, courseContentController.deleteLesson);
 router.post("/lesson", authMiddleWare, courseContentController.lessonTitleRevision);
 router.post("/link", authMiddleWare, courseContentController.sendLinksToResources);
+router.post("/time", authMiddleWare, courseContentController.setTimeModuleAndLessons);
 
 module.exports = router;
