@@ -11,8 +11,9 @@ var mongoose = require("mongoose");
 class courseContentController {
     async uploadContentCourse(req, res) {
         try {
-            const courseId = req.query.id;
+            const courseId = req.query.courseId;
             const course = await TeacherCourse.findOne({
+                _id: courseId,
                 user: req.user.id,
             });
             if (req.files != null) {
@@ -66,10 +67,13 @@ class courseContentController {
 
     async getContentCourses(req, res) {
         try {
-            const parentFile = await TeacherCourse.findOne({
+            const courseId = req.query.courseId;
+            const course = await TeacherCourse.findOne({
+                _id: courseId,
                 user: req.user.id,
             });
-            await res.json(parentFile);
+
+            await res.json(course);
         } catch (e) {
             return res
                 .status(500)
@@ -77,14 +81,30 @@ class courseContentController {
         }
     }
 
+    async getAllTeacherCourses(req, res) {
+        try {
+            const getTeacherCourses = await TeacherCourse.find({
+                user: req.user.id
+            });
+
+            await res.json(getTeacherCourses);
+
+        } catch (e) {
+            return res
+                .status(500)
+                .json({ message: "Get all teacher courses error" });
+        }
+    }
+
     async uploadLesson(req, res) {
         try {
             const { lesson, moduleId } = req.body;
-            const courseId = req.query.id;
+            const courseId = req.query.courseId;
             const fileVideo = req.files.file.name;
             const fileMv = req.files.file;
             const course = await TeacherCourse.findOne({
                 user: req.user.id,
+                _id: courseId
             });
             let val = 0;
             course.content.map((element) => {
@@ -112,36 +132,20 @@ class courseContentController {
     }
 
     async deleteLesson(req, res) {
-        // try {
-        //     const videoName = req.query.name;
-
-        //     const parentFile = await TeacherCourse.findOne({
-        //         user: req.user.id,
-        //     });
-        //     const filter = parentFile.content.filter(
-        //         (el) => el._id.toString() !== req.query.id
-        //     );
-        //     parentFile.content = filter;
-        //     const Path = path.join(__dirname, `../static/videos/${videoName}`);
-        //     fs.unlinkSync(Path);
-        //     parentFile.save();
-        //     await res.json(parentFile);
-        // } catch (e) {
-        //     return res
-        //         .status(500)
-        //         .json({ message: "Delete content courses error" });
-        // }
-
         try {
-            const { moduleId, lessonId, videoName } = req.body;
+            const { moduleId, lessonId, videoName, hours, minutes, seconds } = req.body;
+            console.log(hours, minutes, seconds);
 
             const courseId = req.query.courseId;
             const course = await TeacherCourse.findOne({
                 user: req.user.id,
+                _id: courseId
             });
-
             course.content.map((element) => {
                 if (element._id.toString() === moduleId) {
+                    element.moduleHours -= hours;
+                    element.moduleMinutes -= minutes;
+                    element.moduleSeconds -= seconds;
                     const filter = element.moduleContent.filter(
                         (element) => element._id.toString() !== lessonId
                     );
@@ -165,6 +169,7 @@ class courseContentController {
             const courseId = req.query.courseId;
             const course = await TeacherCourse.findOne({
                 user: req.user.id,
+                _id: courseId
             });
 
             course.content.map((element) => {
@@ -189,17 +194,11 @@ class courseContentController {
         try {
             const { moduleId, lessonId, linkName, linksToResources } = req.body;
 
-            const courseId = req.query.id;
+            const courseId = req.query.courseId;
             const course = await TeacherCourse.findOne({
                 user: req.user.id,
+                _id: courseId
             });
-
-            // course.content.map((element) => {
-            //     if (element._id.toString() === lessonId) {
-            //         // element.linksToResources = [...element.linksToResources, { linkName, link }];
-            //         // course.save();
-            //     }
-            // });
 
             course.content.map((element) => {
                 if (element._id.toString() === moduleId) {
@@ -225,9 +224,10 @@ class courseContentController {
         try {
             const { moduleId, lessonId,  hours, minutes, seconds } = req.body;
 
-            const courseId = req.query.id;
+            const courseId = req.query.courseId;
             const course = await TeacherCourse.findOne({
                 user: req.user.id,
+                _id: courseId
             });
 
             course.content.map((element) => {

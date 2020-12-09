@@ -10,5 +10,6 @@ router.post("/lesson-delete", authMiddleWare, courseContentController.deleteLess
 router.post("/lesson", authMiddleWare, courseContentController.lessonTitleRevision);
 router.post("/link", authMiddleWare, courseContentController.sendLinksToResources);
 router.post("/time", authMiddleWare, courseContentController.setTimeModuleAndLessons);
+router.get("/all-teacher-courses", authMiddleWare, courseContentController.getAllTeacherCourses);
 
 module.exports = router;
