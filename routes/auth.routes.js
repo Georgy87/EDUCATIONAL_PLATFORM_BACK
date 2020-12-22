@@ -1,5 +1,6 @@
 const Router = require("express");
 const User = require("../models/User");
+const TeacherCourse = require("../models/TeacherCourse");
 const bcrypt = require("bcryptjs");
 const router = new Router();
 const { check, validationResult } = require("express-validator");
@@ -44,6 +45,7 @@ router.post(
                 name,
                 surname,
                 teacher,
+                professionalСompetence: ""
             });
             await user.save();
             return res.json({ message: "User was created" });
@@ -99,12 +101,31 @@ router.get("/auth", authMiddleWare, async (req, res) => {
                 name: user.name,
                 surname: user.surname,
                 avatar: user.avatar,
-                teacher: user.teacher
+                teacher: user.teacher,
+                professionalСompetence: user.professionalСompetence
             },
         });
     } catch (e) {
         console.log(e);
         res.send({ message: "Server error" });
+    }
+});
+
+router.post("/change-info", authMiddleWare, async (req, res) => {
+    try {
+        const user = await User.findOne({ _id: req.user.id });
+
+        const { name, surname, professionalСompetence } = req.body;
+        user.name = name;
+        user.surname = surname;
+        user.professionalСompetence = professionalСompetence;
+
+        await TeacherCourse.updateMany({ user: req.user.id }, { $set: { author: name + " " + surname} });
+        await TeacherCourse.updateMany({ user: req.user.id }, { $set: { professionalСompetence: user.professionalСompetence}});
+        user.save();
+    } catch (e) {
+        console.log(e);
+        res.send({ message: "User change info error" });
     }
 });
 

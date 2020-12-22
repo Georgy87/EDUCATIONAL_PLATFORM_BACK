@@ -7,5 +7,7 @@ const Course = new Schema({
     fullDescription: {type: String},
     author: {type: String},
     price: {type: String},
+    professionalСompetence: { type: String },
+    avatar: { type: String }
 });
 module.exports = model("Course", Course);

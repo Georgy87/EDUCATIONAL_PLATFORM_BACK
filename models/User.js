@@ -6,5 +6,6 @@ const User = new Schema({
     surname: { type: String },
     avatar: { type: String },
     teacher: { type: Boolean },
+    professionalСompetence: { type: String },
 });
 module.exports = model("User", User);

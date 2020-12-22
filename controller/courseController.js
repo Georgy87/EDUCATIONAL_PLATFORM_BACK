@@ -34,6 +34,8 @@ class courseController {
 
             const dbFile = new TeacherCourse({
                 user: req.user.id,
+                professionalСompetence: "",
+                avatar: "",
                 photo,
                 profession,
                 author,
@@ -68,8 +70,14 @@ class courseController {
     async getCourses(req, res) {
         try {
             let courses = await TeacherCourse.find();
-            
-            await res.json(courses);
+
+            let ids = ["5fca4f887c15e40d698c5cf2", "5fd6705f90a0d502f02288ab", "5fd76416b84a780acc4c86d6"];
+            let data = await TeacherCourse.find({ _id: { $in: ids } });
+            // console.log(data);
+
+            await res.json({
+                courses,
+            });
         } catch (e) {
             console.log(e);
         }
@@ -126,13 +134,21 @@ class courseController {
     async getProfileCourse(req, res) {
         try {
             const id = req.query.id;
+
             let courses = await TeacherCourse.find();
+
             const courseProfile = courses.filter((course) => course._id == id);
-            await res.json(courseProfile);
+            const userId = courseProfile[0].user;
+            const user = await User.findOne({_id: userId});
+            console.log(courseProfile);
+
+            await res.json(courseProfile[0]);
         } catch (e) {
             console.log(e);
         }
     }
+
+
 }
 
 module.exports = new courseController();
