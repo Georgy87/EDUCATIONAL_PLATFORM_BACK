@@ -1,4 +1,4 @@
-const Course = require("../models/Course");
+// const Course = require("../models/Course");
 const User = require("../models/User");
 const path = require("path");
 const fs = require("fs");
@@ -38,6 +38,7 @@ class courseController {
                 avatar: "",
                 photo,
                 profession,
+                competence: "",
                 author,
                 price,
                 smallDescription,
@@ -71,8 +72,10 @@ class courseController {
         try {
             let courses = await TeacherCourse.find();
 
-            let ids = ["5fca4f887c15e40d698c5cf2", "5fd6705f90a0d502f02288ab", "5fd76416b84a780acc4c86d6"];
-            let data = await TeacherCourse.find({ _id: { $in: ids } });
+            // const user = await User.findById(req.user.id);
+            // console.log(user);
+            // let ids = ["5fca4f887c15e40d698c5cf2", "5fd6705f90a0d502f02288ab", "5fd76416b84a780acc4c86d6"];
+            // let data = await TeacherCourse.find({ _id: { $in: ids } });
             // console.log(data);
 
             await res.json({
@@ -139,8 +142,18 @@ class courseController {
 
             const courseProfile = courses.filter((course) => course._id == id);
             const userId = courseProfile[0].user;
+
+
             const user = await User.findOne({_id: userId});
-            console.log(courseProfile);
+
+
+            courseProfile[0].competence = user.competence;
+
+            // const course = await TeacherCourse.findOne({ user: userId });
+            // console.log(courseProfile[0].competence)
+            // course.save();
+
+            await TeacherCourse.updateMany({ user: userId }, { $set: { competence: user.competence, avatar: user.avatar}});
 
             await res.json(courseProfile[0]);
         } catch (e) {

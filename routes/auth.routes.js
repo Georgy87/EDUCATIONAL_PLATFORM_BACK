@@ -8,14 +8,13 @@ const jwt = require("jsonwebtoken");
 const config = require("config");
 const authMiddleWare = require("../middleware/auth.middleware");
 
-router.post(
-    "/registration",
+router.post("/registration",
     [
         check("email", "Uncorrect email").isEmail(),
         check(
             "password",
             "Password must be longer than 3 and shorter than 12"
-        ).isLength({ min: 3, max: 12 }),
+        ).isLength({ min: 3, max: 12 })
     ],
     async (req, res) => {
         try {
@@ -28,7 +27,7 @@ router.post(
             }
 
             const { email, password, name, surname, teacher } = req.body;
-            console.log(email, password, name, surname, teacher);
+
             const candidate = await User.findOne({ email, name });
 
             if (candidate) {
@@ -38,15 +37,15 @@ router.post(
             }
 
             const hashPassword = await bcrypt.hash(password, 8);
-
             const user = new User({
-                email,
+                email: email,
                 password: hashPassword,
-                name,
-                surname,
-                teacher,
-                professionalСompetence: ""
+                name: name,
+                surname: surname,
+                teacher: teacher,
+                competence: ""
             });
+
             await user.save();
             return res.json({ message: "User was created" });
         } catch (e) {
@@ -79,6 +78,7 @@ router.post("/login", async (req, res) => {
                 surname: user.surname,
                 avatar: user.avatar,
                 teacher: user.teacher,
+                competence: user.competence
             },
         });
     } catch (e) {
@@ -90,9 +90,11 @@ router.post("/login", async (req, res) => {
 router.get("/auth", authMiddleWare, async (req, res) => {
     try {
         const user = await User.findOne({ _id: req.user.id });
+
         const token = jwt.sign({ id: user.id }, config.get("secretKey"), {
             expiresIn: "100h",
         });
+        
         return res.json({
             token,
             user: {
@@ -102,7 +104,7 @@ router.get("/auth", authMiddleWare, async (req, res) => {
                 surname: user.surname,
                 avatar: user.avatar,
                 teacher: user.teacher,
-                professionalСompetence: user.professionalСompetence
+                competence: user.competence
             },
         });
     } catch (e) {
@@ -118,11 +120,13 @@ router.post("/change-info", authMiddleWare, async (req, res) => {
         const { name, surname, professionalСompetence } = req.body;
         user.name = name;
         user.surname = surname;
-        user.professionalСompetence = professionalСompetence;
+        user.competence = professionalСompetence;
 
-        await TeacherCourse.updateMany({ user: req.user.id }, { $set: { author: name + " " + surname} });
-        await TeacherCourse.updateMany({ user: req.user.id }, { $set: { professionalСompetence: user.professionalСompetence}});
         user.save();
+
+        await TeacherCourse.updateMany({ user: req.user.id }, { $set: { author: name + " " + surname}});
+        // await TeacherCourse.updateMany({ user: req.user.id }, { $set: { professionalСompetence: user.сompetence}});
+
     } catch (e) {
         console.log(e);
         res.send({ message: "User change info error" });

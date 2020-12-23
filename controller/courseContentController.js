@@ -1,4 +1,4 @@
-const Course = require("../models/Course");
+// const Course = require("../models/Course");
 const User = require("../models/User");
 const TeacherCourse = require("../models/TeacherCourse");
 const path = require("path");
@@ -236,7 +236,6 @@ class courseContentController {
                     element.moduleMinutes += minutes;
                     element.moduleSeconds += seconds;
                     // course.save();
-
                     element.moduleContent.map((element) => {
                         if (element._id.toString() === lessonId) {
                             element.lessonTime = hours + ":" + minutes + ":" + seconds;
