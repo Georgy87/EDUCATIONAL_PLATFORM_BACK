@@ -9,5 +9,6 @@ router.delete("/", authMiddleWare, courseController.deleteCourse);
 router.post("/avatar", authMiddleWare, courseController.uploadAvatar);
 router.get("/profile", courseController.getProfileCourse);
 router.post("/course", authMiddleWare, courseController.uploadNewCourse);
+router.get("/teacher-profile", authMiddleWare, courseController.getTeacherProfile);
 
 module.exports = router;

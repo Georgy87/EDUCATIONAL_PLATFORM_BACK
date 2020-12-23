@@ -98,7 +98,7 @@ class courseController {
             return res.json({ message: "Coure was delete" });
         } catch (e) {
             console.log(e);
-            return res.status(400).json({ message: "Delete course error" });
+            return res.status(500).json({ message: "Delete course error" });
         }
     }
 
@@ -130,7 +130,7 @@ class courseController {
             });
         } catch (e) {
             console.log(e);
-            return res.status(400).json({ message: "Upload avatar error" });
+            return res.status(500).json({ message: "Upload avatar error" });
         }
     }
 
@@ -143,9 +143,7 @@ class courseController {
             const courseProfile = courses.filter((course) => course._id == id);
             const userId = courseProfile[0].user;
 
-
-            const user = await User.findOne({_id: userId});
-
+            const user = await User.findOne({ _id: userId });
 
             courseProfile[0].competence = user.competence;
 
@@ -153,7 +151,10 @@ class courseController {
             // console.log(courseProfile[0].competence)
             // course.save();
 
-            await TeacherCourse.updateMany({ user: userId }, { $set: { competence: user.competence, avatar: user.avatar}});
+            await TeacherCourse.updateMany(
+                { user: userId },
+                { $set: { competence: user.competence, avatar: user.avatar } }
+            );
 
             await res.json(courseProfile[0]);
         } catch (e) {
@@ -161,7 +162,27 @@ class courseController {
         }
     }
 
+    async getTeacherProfile(req, res) {
+        try {
+            const teacherId = req.query.teacherId;
+            const user = await User.findOne({ _id: teacherId });
+            const allTeacherCourses = await TeacherCourse.find({ user: { $in: teacherId } });
 
+            await res.json({
+                avatar: user.avatar,
+                email: user.email,
+                id: user.id,
+                name: user.name,
+                surname: user.surname,
+                competence: user.competence,
+                courses:  allTeacherCourses
+            });
+        } catch (error) {
+            return res
+                .status(500)
+                .json({ message: "Get teacher profile error" });
+        }
+    }
 }
 
 module.exports = new courseController();
