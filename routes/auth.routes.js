@@ -43,7 +43,8 @@ router.post("/registration",
                 name: name,
                 surname: surname,
                 teacher: teacher,
-                competence: ""
+                competence: "",
+                shoppingCart: []
             });
 
             await user.save();
@@ -78,7 +79,8 @@ router.post("/login", async (req, res) => {
                 surname: user.surname,
                 avatar: user.avatar,
                 teacher: user.teacher,
-                competence: user.competence
+                competence: user.competence,
+                shoppingCart: user.shoppingCart
             },
         });
     } catch (e) {
@@ -94,7 +96,7 @@ router.get("/auth", authMiddleWare, async (req, res) => {
         const token = jwt.sign({ id: user.id }, config.get("secretKey"), {
             expiresIn: "100h",
         });
-        
+
         return res.json({
             token,
             user: {
@@ -104,7 +106,8 @@ router.get("/auth", authMiddleWare, async (req, res) => {
                 surname: user.surname,
                 avatar: user.avatar,
                 teacher: user.teacher,
-                competence: user.competence
+                competence: user.competence,
+                shoppingCart: user.shoppingCart
             },
         });
     } catch (e) {
@@ -126,10 +129,20 @@ router.post("/change-info", authMiddleWare, async (req, res) => {
 
         await TeacherCourse.updateMany({ user: req.user.id }, { $set: { author: name + " " + surname}});
         // await TeacherCourse.updateMany({ user: req.user.id }, { $set: { professionalСompetence: user.сompetence}});
-
     } catch (e) {
         console.log(e);
         res.send({ message: "User change info error" });
+    }
+});
+
+router.post("/shopping-cart", authMiddleWare, async (req, res) => {
+    try {
+        const shoppingCart = req.query.shoppingCartId;
+        const user = await User.findOne({ _id: req.user.id });
+        user.shoppingCart = Array.from(new Set(user.shoppingCart.concat(shoppingCart)));
+        user.save();
+    } catch (error) {
+        res.send({ message: "User shopping cart error" })
     }
 });
 

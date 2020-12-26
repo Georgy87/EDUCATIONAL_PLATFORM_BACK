@@ -7,5 +7,6 @@ const User = new Schema({
     avatar: { type: String },
     teacher: { type: Boolean },
     competence: { type: String },
+    shoppingCart: { type: Array },
 });
 module.exports = model("User", User);
