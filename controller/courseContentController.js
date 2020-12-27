@@ -134,8 +134,6 @@ class courseContentController {
     async deleteLesson(req, res) {
         try {
             const { moduleId, lessonId, videoName, hours, minutes, seconds } = req.body;
-            console.log(hours, minutes, seconds);
-
             const courseId = req.query.courseId;
             const course = await TeacherCourse.findOne({
                 user: req.user.id,

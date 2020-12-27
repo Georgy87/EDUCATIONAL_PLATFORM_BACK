@@ -10,5 +10,6 @@ router.post("/avatar", authMiddleWare, courseController.uploadAvatar);
 router.get("/profile", courseController.getProfileCourse);
 router.post("/course", authMiddleWare, courseController.uploadNewCourse);
 router.get("/teacher-profile", authMiddleWare, courseController.getTeacherProfile);
+router.get("/shopping-cart", authMiddleWare, courseController.getCoursesForShoppingCart);
 
 module.exports = router;

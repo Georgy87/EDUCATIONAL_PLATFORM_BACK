@@ -166,7 +166,9 @@ class courseController {
         try {
             const teacherId = req.query.teacherId;
             const user = await User.findOne({ _id: teacherId });
-            const allTeacherCourses = await TeacherCourse.find({ user: { $in: teacherId } });
+            const allTeacherCourses = await TeacherCourse.find({
+                user: { $in: teacherId },
+            });
 
             await res.json({
                 avatar: user.avatar,
@@ -175,12 +177,31 @@ class courseController {
                 name: user.name,
                 surname: user.surname,
                 competence: user.competence,
-                courses:  allTeacherCourses
+                courses: allTeacherCourses,
             });
         } catch (error) {
             return res
                 .status(500)
                 .json({ message: "Get teacher profile error" });
+        }
+    }
+
+    async getCoursesForShoppingCart(req, res) {
+        try {
+            const user = await User.findOne({ _id: req.user.id});
+            const ids = user.shoppingCart;
+            const courses = await TeacherCourse.find({ _id: { $in: ids } });
+            const coursesDestructured = courses.map(element => Object.assign({}, {
+                photo: element.photo,
+                author: element.author,
+                price: element.price,
+                smallDescription: element.smallDescription,
+                profession: element.profession}));
+            return res.json(coursesDestructured);
+        } catch (error) {
+            return res
+                .status(500)
+                .json({ message: "Get Course for shopping cart error" });
         }
     }
 }
