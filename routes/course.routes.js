@@ -11,5 +11,6 @@ router.get("/profile", courseController.getProfileCourse);
 router.post("/course", authMiddleWare, courseController.uploadNewCourse);
 router.get("/teacher-profile", authMiddleWare, courseController.getTeacherProfile);
 router.get("/shopping-cart", authMiddleWare, courseController.getCoursesForShoppingCart);
+router.delete("/delete-shopping-cart", authMiddleWare, courseController.deleteCoursesForShoppingCart);
 
 module.exports = router;

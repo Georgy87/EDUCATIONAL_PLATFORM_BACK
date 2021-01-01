@@ -188,20 +188,75 @@ class courseController {
 
     async getCoursesForShoppingCart(req, res) {
         try {
-            const user = await User.findOne({ _id: req.user.id});
+            const user = await User.findOne({ _id: req.user.id });
             const ids = user.shoppingCart;
+            
             const courses = await TeacherCourse.find({ _id: { $in: ids } });
-            const coursesDestructured = courses.map(element => Object.assign({}, {
-                photo: element.photo,
-                author: element.author,
-                price: element.price,
-                smallDescription: element.smallDescription,
-                profession: element.profession}));
-            return res.json(coursesDestructured);
+            let totalPrice = 0;
+            const coursesDestructured = courses.map((element) => {
+                totalPrice += Number(element.price);
+                return Object.assign({},
+                    {
+                        photo: element.photo,
+                        author: element.author,
+                        price: element.price,
+                        smallDescription: element.smallDescription,
+                        profession: element.profession,
+                        id: element._id
+                    }
+                );
+            });
+
+            return res.json({
+                coursesData: {
+                    coursesDestructured,
+                    totalPrice,
+                }
+            });
         } catch (error) {
             return res
                 .status(500)
                 .json({ message: "Get Course for shopping cart error" });
+        }
+    }
+
+    async deleteCoursesForShoppingCart(req, res) {
+        try {
+            const user = await User.findOne({ _id: req.user.id });
+            const courseId = req.query.id;
+            const ids = user.shoppingCart;
+
+            const UserCartShopids = ids.filter(el => el != courseId);
+            user.shoppingCart = UserCartShopids;
+
+            const courses = await TeacherCourse.find({ _id: { $in: UserCartShopids } });
+            let totalPrice = 0;
+
+            const coursesDestructured = courses.map((element) => {
+                totalPrice += Number(element.price);
+                return Object.assign({},
+                    {
+                        photo: element.photo,
+                        author: element.author,
+                        price: element.price,
+                        smallDescription: element.smallDescription,
+                        profession: element.profession,
+                        id: element._id
+                    }
+                );
+            });
+            user.save();
+
+            return res.json({
+                coursesData: {
+                    coursesDestructured,
+                    totalPrice,
+                }
+            });
+        } catch (error) {
+            return res
+                .status(500)
+                .json({ message: "Delete Course for shopping cart error" });
         }
     }
 }
