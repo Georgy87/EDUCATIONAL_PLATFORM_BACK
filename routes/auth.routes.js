@@ -160,4 +160,5 @@ router.post("/purchased-courses", authMiddleWare, async (req, res) => {
     }
 });
 
+
 module.exports = router;

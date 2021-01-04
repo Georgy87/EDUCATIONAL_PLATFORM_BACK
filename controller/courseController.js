@@ -190,19 +190,20 @@ class courseController {
         try {
             const user = await User.findOne({ _id: req.user.id });
             const ids = user.shoppingCart;
-            
+
             const courses = await TeacherCourse.find({ _id: { $in: ids } });
             let totalPrice = 0;
             const coursesDestructured = courses.map((element) => {
                 totalPrice += Number(element.price);
-                return Object.assign({},
+                return Object.assign(
+                    {},
                     {
                         photo: element.photo,
                         author: element.author,
                         price: element.price,
                         smallDescription: element.smallDescription,
                         profession: element.profession,
-                        id: element._id
+                        id: element._id,
                     }
                 );
             });
@@ -211,7 +212,7 @@ class courseController {
                 coursesData: {
                     coursesDestructured,
                     totalPrice,
-                }
+                },
             });
         } catch (error) {
             return res
@@ -226,22 +227,26 @@ class courseController {
             const courseId = req.query.id;
             const ids = user.shoppingCart;
 
-            const UserCartShopids = ids.filter(el => el != courseId);
+            const UserCartShopids = ids.filter((el) => el != courseId);
+
             user.shoppingCart = UserCartShopids;
 
-            const courses = await TeacherCourse.find({ _id: { $in: UserCartShopids } });
+            const courses = await TeacherCourse.find({
+                _id: { $in: UserCartShopids },
+            });
             let totalPrice = 0;
 
             const coursesDestructured = courses.map((element) => {
                 totalPrice += Number(element.price);
-                return Object.assign({},
+                return Object.assign(
+                    {},
                     {
                         photo: element.photo,
                         author: element.author,
                         price: element.price,
                         smallDescription: element.smallDescription,
                         profession: element.profession,
-                        id: element._id
+                        id: element._id,
                     }
                 );
             });
@@ -251,12 +256,37 @@ class courseController {
                 coursesData: {
                     coursesDestructured,
                     totalPrice,
-                }
+                },
             });
         } catch (error) {
             return res
                 .status(500)
                 .json({ message: "Delete Course for shopping cart error" });
+        }
+    }
+
+    async getPurchasedCourses(req, res) {
+        try {
+            const user = await User.findOne({ _id: req.user.id });
+            const ids = user.purchasedCourses;
+            console.log(ids);
+            const courses = await TeacherCourse.find({ _id: { $in: ids } });
+            const coursesDestructured = courses.map((element) => {
+                return Object.assign(
+                    {},
+                    {
+                        photo: element.photo,
+                        author: element.author,
+                        smallDescription: element.smallDescription,
+                        id: element._id,
+                    }
+                );
+            });
+            return res.json([ ...coursesDestructured ]);
+        } catch (error) {
+            return res
+                .status(500)
+                .json({ message: "Get Course for Purchased Courses error" });
         }
     }
 }
