@@ -44,7 +44,8 @@ router.post("/registration",
                 surname: surname,
                 teacher: teacher,
                 competence: "",
-                shoppingCart: []
+                shoppingCart: [],
+                purchasedCourses: []
             });
 
             await user.save();
@@ -80,7 +81,8 @@ router.post("/login", async (req, res) => {
                 avatar: user.avatar,
                 teacher: user.teacher,
                 competence: user.competence,
-                shoppingCart: user.shoppingCart
+                shoppingCart: user.shoppingCart,
+                purchasedCourses: user.purchasedCourses
             },
         });
     } catch (e) {
@@ -107,7 +109,8 @@ router.get("/auth", authMiddleWare, async (req, res) => {
                 avatar: user.avatar,
                 teacher: user.teacher,
                 competence: user.competence,
-                shoppingCart: user.shoppingCart
+                shoppingCart: user.shoppingCart,
+                purchasedCourses: user.purchasedCourses
             },
         });
     } catch (e) {
@@ -146,6 +149,15 @@ router.post("/shopping-cart", authMiddleWare, async (req, res) => {
     }
 });
 
-
+router.post("/purchased-courses", authMiddleWare, async (req, res) => {
+    try {
+        const purchasedCoursesIds = req.body.ids;
+        const user = await User.findOne({ _id: req.user.id });
+        user.purchasedCourses = Array.from(new Set(user.purchasedCourses.concat(purchasedCoursesIds)));
+        user.save();
+    } catch (error) {
+        res.send({ message: "User set purchased courses error" })
+    }
+});
 
 module.exports = router;
