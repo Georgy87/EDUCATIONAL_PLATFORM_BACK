@@ -87,6 +87,7 @@ class courseContentController {
                 user: req.user.id
             });
 
+            console.log(getTeacherCourses);
             await res.json(getTeacherCourses);
 
         } catch (e) {
@@ -117,7 +118,6 @@ class courseContentController {
                         linksToResources: [],
                     });
                 }
-
                 val += element.moduleContent.length;
             });
             // console.log(val);
@@ -240,7 +240,6 @@ class courseContentController {
                         }
                     });
                 }
-
             });
             course.save();
             await res.json(course);

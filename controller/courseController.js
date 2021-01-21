@@ -146,11 +146,8 @@ class courseController {
             const user = await User.findOne({ _id: userId });
 
             courseProfile[0].competence = user.competence;
-
             // const course = await TeacherCourse.findOne({ user: userId });
-            // console.log(courseProfile[0].competence)
             // course.save();
-
             await TeacherCourse.updateMany(
                 { user: userId },
                 { $set: { competence: user.competence, avatar: user.avatar } }
@@ -234,6 +231,7 @@ class courseController {
             const courses = await TeacherCourse.find({
                 _id: { $in: UserCartShopids },
             });
+
             let totalPrice = 0;
 
             const coursesDestructured = courses.map((element) => {
@@ -250,6 +248,7 @@ class courseController {
                     }
                 );
             });
+
             user.save();
 
             return res.json({
@@ -269,7 +268,7 @@ class courseController {
         try {
             const user = await User.findOne({ _id: req.user.id });
             const ids = user.purchasedCourses;
-            console.log(ids);
+
             const courses = await TeacherCourse.find({ _id: { $in: ids } });
             const coursesDestructured = courses.map((element) => {
                 return Object.assign(
@@ -282,11 +281,23 @@ class courseController {
                     }
                 );
             });
-            return res.json([ ...coursesDestructured ]);
+            return res.json([...coursesDestructured]);
         } catch (error) {
             return res
                 .status(500)
                 .json({ message: "Get Course for Purchased Courses error" });
+        }
+    }
+
+    async getCourseForTraining(req, res) {
+        try {
+            const course = await TeacherCourse.findOne({ _id: req.query.id });
+            console.log(course);
+            res.json({ course });
+        } catch (error) {
+            return res
+                .status(500)
+                .json({ message: "Get Course for Training error" });
         }
     }
 }

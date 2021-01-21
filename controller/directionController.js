@@ -41,6 +41,7 @@ class directionController {
             // let files = await Direction.find({ user: req.user.id });
             let files = await Direction.find();
 
+
             await res.json(files);
         } catch (e) {
             console.log(e);
@@ -49,13 +50,13 @@ class directionController {
 
     async filterByDirection(req, res) {
         try {
-            let files = await TeacherCourse.find();
+            let files = await TeacherCourse.find({}).select('-content').exec();
             const directionName = req.query.search;
             // console.log(directionName);
             files = files.filter((file) =>
                 file.profession.includes(directionName)
             );
-
+            console.log(files);
             await res.json(files);
         } catch (e) {
             console.log(e);
@@ -67,10 +68,6 @@ class directionController {
             let files = await File.find({ profession: req.query.direction });
             const direction = await Direction.findOne({ _id: req.query.id });
 
-            // const pathDirection = path.join(__dirname, `../static/${files.name}`);
-            // fs.unlinkSync(pathDirection);
-
-            // return res.json({message: 'Coure was delete'});
             files.map((el) => {
                 fs.unlinkSync(path.join(__dirname, `../static/${el.name}`));
                 return el.remove();
