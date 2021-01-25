@@ -174,24 +174,39 @@ class courseController {
     async createComment(req, res) {
         try {
 
-            const { userId, courseId, text, commentId, commentText } = req.body;
+            const { userId, courseId, text } = req.body;
 
             const course = await TeacherCourse.findOne({_id: courseId}).populate("comments.user").populate("comments.comments.user");
-            // const course = await TeacherCourse.findOne({_id: courseId});
-            // course.comments.push({
-            //     text: text,
-            //     user: userId
-            // });
+            
+            course.comments.push({
+                text: text,
+                user: userId
+            });
 
-            // course.comments.map(el => {
-            //     if (el._id.toString() === commentId) {
-            //         el.comments.push({
-            //             text: commentText,
-            //             user: userId
-            //         })
-            //         course.save();
-            //     }
-            // });
+            course.save();
+
+            res.json(course.comments)
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async createAnswerComment(req, res) {
+        try {
+
+            const { userId, courseId, commentId, text } = req.body;
+
+            const course = await TeacherCourse.findOne({_id: courseId}).populate("comments.user").populate("comments.comments.user");
+
+            course.comments.map(el => {
+                if (el._id.toString() === commentId) {
+                    el.comments.push({
+                        text: text,
+                        user: userId
+                    })
+                    course.save();
+                }
+            });
 
             res.json(course.comments)
         } catch (e) {
