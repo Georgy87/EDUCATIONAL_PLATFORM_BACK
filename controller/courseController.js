@@ -6,6 +6,7 @@ const Uuid = require("uuid");
 const jwt = require("jsonwebtoken");
 const config = require("config");
 const TeacherCourse = require("../models/TeacherCourse");
+const { populate } = require("../models/User");
 
 class courseController {
     async uploadNewCourse(req, res) {
@@ -43,6 +44,7 @@ class courseController {
                 price,
                 smallDescription,
                 fullDescription,
+                comments: [],
                 content: [
                     {
                         module: module,
@@ -71,13 +73,21 @@ class courseController {
     async getCourses(req, res) {
         try {
             let courses = await TeacherCourse.find();
+            // const c = await TeacherCourse.find({"content._id": "5feb4590675e3e305ce140eb"});
 
-            // const user = await User.findById(req.user.id);
-            // console.log(user);
-            // let ids = ["5fca4f887c15e40d698c5cf2", "5fd6705f90a0d502f02288ab", "5fd76416b84a780acc4c86d6"];
-            // let data = await TeacherCourse.find({ _id: { $in: ids } });
-            // console.log(data);
+            // const query = "5feb4590675e3e305ce140eb";
+            // await TeacherCourse.findOne(query, (error, doc) => {
 
+            //     // Do some mutations
+            //     doc.content.module = 'some new value'
+
+            //     // Pass in the mutated doc and replace
+            //     // MyModel.replaceOne(query, doc, (error, newDoc) => {
+            //     //      console.log('It worked!')
+            //     // })module
+
+            // })
+            // module.save()
             await res.json({
                 courses,
             });
@@ -154,6 +164,36 @@ class courseController {
             );
 
             await res.json(courseProfile[0]);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    // В запросе: courseId, userId, text
+
+    async createComment(req, res) {
+        try {
+
+            const { userId, courseId, text, commentId, commentText } = req.body;
+
+            const course = await TeacherCourse.findOne({_id: courseId}).populate("comments.user").populate("comments.comments.user");
+            // const course = await TeacherCourse.findOne({_id: courseId});
+            // course.comments.push({
+            //     text: text,
+            //     user: userId
+            // });
+
+            // course.comments.map(el => {
+            //     if (el._id.toString() === commentId) {
+            //         el.comments.push({
+            //             text: commentText,
+            //             user: userId
+            //         })
+            //         course.save();
+            //     }
+            // });
+
+            res.json(course.comments)
         } catch (e) {
             console.log(e);
         }
@@ -292,7 +332,7 @@ class courseController {
     async getCourseForTraining(req, res) {
         try {
             const course = await TeacherCourse.findOne({ _id: req.query.id });
-            console.log(course);
+
             res.json({ course });
         } catch (error) {
             return res

@@ -10,6 +10,26 @@ const TeacherCourse = new Schema({
     fullDescription: { type: String },
     user: { type: ObjectId, ref: "User" },
     avatar: { type: String },
+    comments: [
+        {
+            text: { type: String },
+            user: {
+                required: true,
+                ref: "User",
+                type: Schema.Types.ObjectId,
+            },
+            comments: [
+                {
+                    text: { type: String },
+                    user: {
+                        required: true,
+                        ref: "User",
+                        type: Schema.Types.ObjectId,
+                    },
+                },
+            ],
+        },
+    ],
     content: [
         {
             module: String,

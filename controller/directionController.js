@@ -56,7 +56,7 @@ class directionController {
             files = files.filter((file) =>
                 file.profession.includes(directionName)
             );
-            console.log(files);
+           
             await res.json(files);
         } catch (e) {
             console.log(e);

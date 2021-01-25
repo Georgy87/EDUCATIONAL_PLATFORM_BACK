@@ -14,4 +14,5 @@ router.get("/shopping-cart", authMiddleWare, courseController.getCoursesForShopp
 router.delete("/delete-shopping-cart", authMiddleWare, courseController.deleteCoursesForShoppingCart);
 router.get("/purchased-courses", authMiddleWare, courseController.getPurchasedCourses);
 router.get("/training-course", authMiddleWare, courseController.getCourseForTraining);
+router.post("/comment", courseController.createComment);
 module.exports = router;
