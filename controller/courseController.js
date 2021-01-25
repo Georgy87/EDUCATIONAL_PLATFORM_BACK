@@ -173,19 +173,20 @@ class courseController {
 
     async createComment(req, res) {
         try {
+            const { courseId, text } = req.body;
 
-            const { userId, courseId, text } = req.body;
+            const userId = req.user.id;
 
-            const course = await TeacherCourse.findOne({_id: courseId}).populate("comments.user").populate("comments.comments.user");
-            
+            const course = await TeacherCourse.findOne({ _id: courseId });
+
             course.comments.push({
                 text: text,
-                user: userId
+                user: userId,
             });
 
             course.save();
 
-            res.json(course.comments)
+            res.json(course.comments);
         } catch (e) {
             console.log(e);
         }
@@ -193,22 +194,40 @@ class courseController {
 
     async createAnswerComment(req, res) {
         try {
+            const { courseId, commentId, text } = req.body;
 
-            const { userId, courseId, commentId, text } = req.body;
+            const userId = req.user.id;
 
-            const course = await TeacherCourse.findOne({_id: courseId}).populate("comments.user").populate("comments.comments.user");
+            const course = await TeacherCourse.findOne({ _id: courseId });
 
-            course.comments.map(el => {
+            course.comments.map((el) => {
                 if (el._id.toString() === commentId) {
                     el.comments.push({
                         text: text,
-                        user: userId
-                    })
+                        user: userId,
+                    });
                     course.save();
                 }
             });
 
-            res.json(course.comments)
+            res.json({
+                status: 'SUCCESS'
+            });
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getCommentForCourse(req, res) {
+        try {
+            const { courseId } = req.body;
+            const course = await TeacherCourse.findOne({ _id: courseId })
+                .populate("comments.user")
+                .populate("comments.comments.user");
+
+            res.json({
+                data: course.comments,
+            });
         } catch (e) {
             console.log(e);
         }
