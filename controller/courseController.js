@@ -173,11 +173,22 @@ class courseController {
 
     async createComment(req, res) {
         try {
-            const { courseId, text } = req.body;
+            const { userId, courseId, text } = req.body;
 
-            const userId = req.user.id;
+            // const userId = req.user.id;
 
-            const course = await TeacherCourse.findOne({ _id: courseId });
+            const course = await TeacherCourse.findOne({ _id: courseId })
+                .select("-avatar")
+                .select("-content")
+                .select("-photo")
+                .select("-smallDescription")
+                .select("-fullDescription")
+                .select("-profession")
+                .select("-competence")
+                .select("-user")
+                .select("-author")
+                .select("-price")
+                .select("-__v");
 
             course.comments.push({
                 text: text,
@@ -186,7 +197,12 @@ class courseController {
 
             course.save();
 
-            res.json(course.comments);
+            const data = await course;
+
+            await res.json({
+                status: "SUCCESS",
+                data: await data.populate("comments.user").execPopulate(),
+            });
         } catch (e) {
             console.log(e);
         }
@@ -194,11 +210,22 @@ class courseController {
 
     async createAnswerComment(req, res) {
         try {
-            const { courseId, commentId, text } = req.body;
+            const { userId, courseId, commentId, text } = req.body;
 
-            const userId = req.user.id;
+            // const userId = req.user.id;
 
-            const course = await TeacherCourse.findOne({ _id: courseId });
+            const course = await TeacherCourse.findOne({ _id: courseId })
+                .select("-avatar")
+                .select("-content")
+                .select("-photo")
+                .select("-smallDescription")
+                .select("-fullDescription")
+                .select("-profession")
+                .select("-competence")
+                .select("-user")
+                .select("-author")
+                .select("-price")
+                .select("-__v");
 
             course.comments.map((el) => {
                 if (el._id.toString() === commentId) {
@@ -210,21 +237,26 @@ class courseController {
                 }
             });
 
+            const data = await course;
+
             res.json({
-                status: 'SUCCESS'
+                status: "SUCCESS",
+                data: await data
+                    .populate("comments.user")
+                    .populate("comments.comments.user")
+                    .execPopulate()
             });
         } catch (e) {
             console.log(e);
         }
     }
 
-    async getCommentForCourse(req, res) {
+    async getCommentsForCourse(req, res) {
         try {
             const { courseId } = req.body;
             const course = await TeacherCourse.findOne({ _id: courseId })
                 .populate("comments.user")
                 .populate("comments.comments.user");
-
             res.json({
                 data: course.comments,
             });
