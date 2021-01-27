@@ -212,8 +212,6 @@ class courseController {
         try {
             const { userId, courseId, commentId, text } = req.body;
 
-            // const userId = req.user.id;
-
             const course = await TeacherCourse.findOne({ _id: courseId })
                 .select("-avatar")
                 .select("-content")
@@ -253,7 +251,7 @@ class courseController {
 
     async getCommentsForCourse(req, res) {
         try {
-            const { courseId } = req.body;
+            const { courseId } = req.query;
             const course = await TeacherCourse.findOne({ _id: courseId })
                 .populate("comments.user")
                 .populate("comments.comments.user");
