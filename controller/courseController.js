@@ -72,7 +72,7 @@ class courseController {
 
     async getCourses(req, res) {
         try {
-            let courses = await TeacherCourse.find();
+            const courses = await TeacherCourse.find();
             // const c = await TeacherCourse.find({"content._id": "5feb4590675e3e305ce140eb"});
 
             // const query = "5feb4590675e3e305ce140eb";
@@ -88,6 +88,11 @@ class courseController {
 
             // })
             // module.save()
+            // const course = await TeacherCourse.findOne({"content._id": "6003812df69ac10754e61cff"}).exec(function(err, data) {
+
+            //     console.log(data);
+            // });
+
             await res.json({
                 courses,
             });
@@ -128,16 +133,18 @@ class courseController {
 
             user.avatar = avatarName;
             await user.save();
-
-            return res.json({
+            // console.log(token);
+            res.json({
                 token,
-                user: {
-                    id: user.id,
-                    email: user.email,
-                    name: user.name,
-                    avatar: user.avatar,
-                },
+                user,
             });
+
+            // user: {
+            //     id: user.id,
+            //     email: user.email,
+            //     name: user.name,
+            //     avatar: user.avatar,
+            // },
         } catch (e) {
             console.log(e);
             return res.status(500).json({ message: "Upload avatar error" });
@@ -169,80 +176,69 @@ class courseController {
         }
     }
 
-    // В запросе: courseId, userId, text
-
     async createComment(req, res) {
         try {
-            const { userId, courseId, text } = req.body;
+            const { text } = req.body;
 
-            // const userId = req.user.id;
+            await TeacherCourse.findOne({
+                _id: req.query.courseId,
+            })
+                .select(
+                    "-content -smallDescription -fullDescription -profession -competence -user -author -price -__v"
+                )
+                .exec(async function(err, course) {
+                    course.comments.unshift({
+                        text: text,
+                        user: req.user.id,
+                    });
 
-            const course = await TeacherCourse.findOne({ _id: courseId })
-                .select("-avatar")
-                .select("-content")
-                .select("-photo")
-                .select("-smallDescription")
-                .select("-fullDescription")
-                .select("-profession")
-                .select("-competence")
-                .select("-user")
-                .select("-author")
-                .select("-price")
-                .select("-__v");
+                    course.save();
 
-            course.comments.push({
-                text: text,
-                user: userId,
-            });
+                    const data = await course
+                        .populate("comments.user")
+                        .populate("comments.comments.user")
+                        .execPopulate();
 
-            course.save();
-
-            const data = await course;
-
-            await res.json({
-                status: "SUCCESS",
-                data: await data.populate("comments.user").execPopulate(),
-            });
+                    return res.json({
+                        status: "SUCCESS",
+                        data: data,
+                    });
+                });
         } catch (e) {
             console.log(e);
         }
     }
 
-    async createAnswerComment(req, res) {
+    async createReplyToComment(req, res) {
         try {
-            const { userId, courseId, commentId, text } = req.body;
+            const { text } = req.body;
+            const { courseId, commentId } = req.query;
+            const userId = req.user.id;
 
-            const course = await TeacherCourse.findOne({ _id: courseId })
-                .select("-avatar")
-                .select("-content")
-                .select("-photo")
-                .select("-smallDescription")
-                .select("-fullDescription")
-                .select("-profession")
-                .select("-competence")
-                .select("-user")
-                .select("-author")
-                .select("-price")
-                .select("-__v");
+            await TeacherCourse.findOne({ _id: courseId }).exec(function(err, course) {
+                course.comments.map(async (el) => {
+                    if (el._id.toString() === commentId) {
+                        el.comments.push({
+                            text: text,
+                            user: userId,
+                        });
 
-            course.comments.map((el) => {
-                if (el._id.toString() === commentId) {
-                    el.comments.push({
-                        text: text,
-                        user: userId,
-                    });
-                    course.save();
-                }
-            });
+                        course.save();
 
-            const data = await course;
+                        const data = await course
+                            .populate("comments.user")
+                            .populate("comments.comments.user")
+                            .execPopulate();
 
-            res.json({
-                status: "SUCCESS",
-                data: await data
-                    .populate("comments.user")
-                    .populate("comments.comments.user")
-                    .execPopulate()
+                        await data.comments.map((el) => {
+                            if (el._id.toString() === commentId) {
+                                return res.json({
+                                    data: el,
+                                });
+                            }
+                        });
+                    }
+                });
             });
         } catch (e) {
             console.log(e);
@@ -252,12 +248,36 @@ class courseController {
     async getCommentsForCourse(req, res) {
         try {
             const { courseId } = req.query;
-            const course = await TeacherCourse.findOne({ _id: courseId })
+            await TeacherCourse.findOne({ _id: courseId })
                 .populate("comments.user")
-                .populate("comments.comments.user");
-            res.json({
-                data: course.comments,
-            });
+                .populate("comments.comments.user")
+                .exec(function(err, data) {
+                    if (data) {
+                        return res.json({
+                            data: data.comments,
+                        });
+                    }
+                });
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getReplyToComment(req, res) {
+        try {
+            const { courseId, commentId } = req.query;
+            await TeacherCourse.findOne({ _id: courseId })
+                .populate("comments.user")
+                .populate("comments.comments.user")
+                .exec(function(err, course) {
+                    course.comments.map((data) => {
+                        if (data._id.toString() === commentId) {
+                            return res.json({
+                                data: data,
+                            });
+                        }
+                    });
+                });
         } catch (e) {
             console.log(e);
         }
@@ -292,29 +312,25 @@ class courseController {
             const user = await User.findOne({ _id: req.user.id });
             const ids = user.shoppingCart;
 
-            const courses = await TeacherCourse.find({ _id: { $in: ids } });
             let totalPrice = 0;
-            const coursesDestructured = courses.map((element) => {
-                totalPrice += Number(element.price);
-                return Object.assign(
-                    {},
-                    {
-                        photo: element.photo,
-                        author: element.author,
-                        price: element.price,
-                        smallDescription: element.smallDescription,
-                        profession: element.profession,
-                        id: element._id,
-                    }
-                );
-            });
 
-            return res.json({
-                coursesData: {
-                    coursesDestructured,
-                    totalPrice,
-                },
-            });
+            await TeacherCourse.find({
+                _id: { $in: ids },
+            })
+                .select(
+                    "-content -comments -user -smallDescription -fullDescription -updatedAt -__v -competence"
+                )
+                .exec(function(err, coursesDestructured) {
+                    coursesDestructured.map((element) => {
+                        totalPrice += Number(element.price);
+                    });
+                    return res.json({
+                        coursesData: {
+                            coursesDestructured,
+                            totalPrice,
+                        },
+                    });
+                });
         } catch (error) {
             return res
                 .status(500)
@@ -348,7 +364,7 @@ class courseController {
                         price: element.price,
                         smallDescription: element.smallDescription,
                         profession: element.profession,
-                        id: element._id,
+                        _id: element._id,
                     }
                 );
             });
@@ -372,7 +388,6 @@ class courseController {
         try {
             const user = await User.findOne({ _id: req.user.id });
             const ids = user.purchasedCourses;
-
             const courses = await TeacherCourse.find({ _id: { $in: ids } });
             const coursesDestructured = courses.map((element) => {
                 return Object.assign(

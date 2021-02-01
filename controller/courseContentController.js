@@ -87,7 +87,6 @@ class courseContentController {
                 user: req.user.id
             });
 
-            console.log(getTeacherCourses);
             await res.json(getTeacherCourses);
 
         } catch (e) {
