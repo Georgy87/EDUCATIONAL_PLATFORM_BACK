@@ -75,28 +75,36 @@ router.post("/login", async (req, res) => {
 
         const isPassValid = bcrypt.compareSync(password, user.password);
 
-        if (!isPassValid) {
-            return res.status(400).json({ message: "Invalid password" });
-        }
+        // if (!isPassValid) {
+        //     return res.status(400).json({ message: "Invalid password" });
+        // }
 
         const token = jwt.sign({ id: user.id }, config.get("secretKey"), {
             expiresIn: "1h",
         });
 
-        return res.json({
-            token,
-            user: {
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                surname: user.surname,
-                avatar: user.avatar,
-                teacher: user.teacher,
-                competence: user.competence,
-                shoppingCart: user.shoppingCart,
-                purchasedCourses: user.purchasedCourses,
-            },
-        });
+        if (isPassValid) {
+            return res.json({
+                status: 'success',
+                token,
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    surname: user.surname,
+                    avatar: user.avatar,
+                    teacher: user.teacher,
+                    competence: user.competence,
+                    shoppingCart: user.shoppingCart,
+                    purchasedCourses: user.purchasedCourses,
+                },
+            });
+        } else {
+            return res.json({
+                status: "error",
+                message: "Incorrect password or email",
+            });
+        }
     } catch (e) {
         console.log(e);
         res.send({ message: "Server error" });
