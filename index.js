@@ -2,33 +2,10 @@ const express = require("express");
 const mongoose = require("mongoose");
 const config = require("config");
 const app = express();
-const userRouter = require("./routes/user.routes");
-const corsmiddleware = require("./middleware/cors.middleware");
 const PORT = config.get("serverPort");
-const courseRouter = require("./routes/course.routes");
-const directionRouter = require("./routes/direction.routes");
-const courseContentRouter = require("./routes/courseContent.routes");
-const fileUpload = require("express-fileupload");
+const { createUseApp } = require("./core/moduleApp");
 
-app.use(fileUpload({}));
-
-app.use(corsmiddleware);
-
-app.use(express.json());
-
-app.use("/api/auth", userRouter);
-app.use("/api/course", courseRouter);
-app.use("/api/direction", directionRouter);
-app.use("/api/teacher", courseRouter);
-app.use("/api/teacher", courseContentRouter);
-
-app.use(express.static("static/coursePhotos"));
-
-app.use(express.static("static"));
-
-app.use(express.static("static/directions"));
-app.use(express.static("static/avatars"));
-app.use(express.static("static/videos"));
+createUseApp(app);
 
 const start = async () => {
     try {
