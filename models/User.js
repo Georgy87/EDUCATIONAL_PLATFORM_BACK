@@ -9,5 +9,6 @@ const User = new Schema({
     competence: { type: String },
     shoppingCart: { type: Array },
     purchasedCourses: { type: Array },
+    confirm_hash: String,
 });
 module.exports = model("User", User);
