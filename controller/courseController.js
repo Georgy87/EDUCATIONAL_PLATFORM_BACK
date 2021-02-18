@@ -2,7 +2,7 @@
 const User = require("../models/User");
 const path = require("path");
 const fs = require("fs");
-const Uuid = require("uuid");
+
 const jwt = require("jsonwebtoken");
 const config = require("config");
 const TeacherCourse = require("../models/TeacherCourse");
@@ -114,40 +114,6 @@ class courseController {
         } catch (e) {
             console.log(e);
             return res.status(500).json({ message: "Delete course error" });
-        }
-    }
-
-    async uploadAvatar(req, res) {
-        try {
-            const file = req.files.file;
-            const avatarName = Uuid.v4() + ".jpg";
-
-            const Path = path.join(__dirname, `../static/avatars`);
-
-            file.mv(Path + "/" + avatarName);
-
-            const user = await User.findById(req.user.id);
-            const token = jwt.sign({ id: user.id }, config.get("secretKey"), {
-                expiresIn: "100h",
-            });
-
-            user.avatar = avatarName;
-            await user.save();
-            // console.log(token);
-            res.json({
-                token,
-                user,
-            });
-
-            // user: {
-            //     id: user.id,
-            //     email: user.email,
-            //     name: user.name,
-            //     avatar: user.avatar,
-            // },
-        } catch (e) {
-            console.log(e);
-            return res.status(500).json({ message: "Upload avatar error" });
         }
     }
 

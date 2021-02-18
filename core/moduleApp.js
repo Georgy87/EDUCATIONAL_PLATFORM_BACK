@@ -7,7 +7,7 @@ const fileUpload = require("express-fileupload");
 const corsmiddleware = require("../middleware/cors.middleware");
 
 module.exports.createUseApp = (app) => {
-    
+
     app.use(fileUpload({}));
     app.use(corsmiddleware);
     app.use(express.json());

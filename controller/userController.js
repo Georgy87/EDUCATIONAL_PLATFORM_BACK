@@ -5,6 +5,8 @@ const { validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const config = require("config");
 const mailer = require('../mailer/nodemailer');
+const Uuid = require("uuid");
+const path = require("path");
 
 class UserController {
     async registration(req, res) {
@@ -42,7 +44,7 @@ class UserController {
 
             user.confirm_hash = await bcrypt.hash(new Date().toString(), 8);
 
-            return user.save()
+            user.save()
                 .then((data) => {
                     const message = {
                         from: "admin@test.com",
@@ -67,29 +69,31 @@ class UserController {
         if (!hash) {
             res.status(422).json({ errors: 'Invalid hash!' });
         } else {
-            await User.findOne({ confirm_hash: hash}, (err, user) => {
+            await User.findOne({ confirm_hash: hash }, (err, user) => {
                 if (err || !user) {
                     res.status(404).json({
                         status: 'error',
                         message: 'Hash not found'
                     });
                 }
+                if (user) {
+                    user.confirmed = true;
 
-                user.confirmed = true;
-                user.save((err) => {
-                    if (err) {
-                        return res.status(404).json({
-                            status: "error",
-                            message: err,
+                    user.save((err) => {
+                        if (err) {
+                            return res.status(404).json({
+                                status: "error",
+                                message: err,
+                            });
+                        }
+
+                        res.json({
+                            status: "success",
+                            message: "Аккаунт успешно подтвержден!",
                         });
-                    }
-
-                    res.json({
-                        status: "success",
-                        message: "Аккаунт успешно подтвержден!",
                     });
-                });
-            });
+                }
+            }).exec();
         }
     }
 
@@ -160,7 +164,7 @@ class UserController {
             });
         } catch (e) {
             console.log(e);
-            res.send({ message: "Server error" });
+            res.send({ message: "Auth error" });
         }
     }
 
@@ -173,13 +177,24 @@ class UserController {
             user.surname = surname;
             user.competence = professionalСompetence;
 
-            user.save();
+            user.save(async (err) => {
+                if (err) {
+                    return res.status(404).json({
+                        status: "Error update user info",
+                        message: err,
+                    });
+                }
 
-            await TeacherCourse.updateMany(
-                { user: req.user.id },
-                { $set: { author: name + " " + surname } }
-            );
-            // await TeacherCourse.updateMany({ user: req.user.id }, { $set: { professionalСompetence: user.сompetence}});
+                await TeacherCourse.updateMany(
+                    { user: req.user.id },
+                    { $set: { author: name + " " + surname } }
+                ).exec();
+
+                res.json({
+                    status: "success",
+                    message: "Update user info",
+                });
+            });
         } catch (e) {
             console.log(e);
             res.send({ message: "User change info error" });
@@ -193,7 +208,19 @@ class UserController {
             user.shoppingCart = Array.from(
                 new Set(user.shoppingCart.concat(shoppingCart))
             );
-            user.save();
+            user.save((err) => {
+                if (err) {
+                    return res.status(404).json({
+                        status: "Error add course for shopping cart",
+                        message: err,
+                    });
+                }
+
+                res.json({
+                    status: "success",
+                    message: "Add course for shopping cart",
+                });
+            });
         } catch (error) {
             res.send({ message: "User shopping cart error" });
         }
@@ -202,13 +229,65 @@ class UserController {
     async purchasedCourses(req, res) {
         try {
             const purchasedCoursesIds = req.body.ids;
-            const user = await User.findOne({ _id: req.user.id });
+            const user = await User.findOne({ _id: req.user.id }).exec();
             user.purchasedCourses = Array.from(
                 new Set(user.purchasedCourses.concat(purchasedCoursesIds))
             );
-            user.save();
+            user.save((err) => {
+                if (err) {
+                    return res.status(404).json({
+                        status: "Error add Purchased courses",
+                        message: err,
+                    });
+                }
+
+                res.json({
+                    status: "success",
+                    message: "Purchased courses added",
+                });
+            });
         } catch (error) {
-            res.send({ message: "User set purchased courses error" });
+            res.send({ message: "User add purchased courses error" });
+        }
+    }
+
+
+    async uploadAvatar(req, res) {
+        try {
+            const file = req.files.file;
+            const avatarName = Uuid.v4() + ".jpg";
+
+            const Path = path.join(__dirname, `../static/avatars`);
+
+            file.mv(Path + "/" + avatarName);
+
+            const user = await User.findById(req.user.id);
+            const token = jwt.sign({ id: user.id }, config.get("secretKey"), {
+                expiresIn: "100h",
+            });
+
+            user.avatar = avatarName;
+            user.save((err) => {
+                if (err) {
+                    return res.status(404).json({
+                        status: "Error upload avatar",
+                        message: err,
+                    });
+                }
+
+                res.json({
+                    status: "success",
+                    message: "Upload avatar done",
+                });
+
+                return res.json({
+                    token,
+                    user,
+                });
+            });
+        } catch (e) {
+            console.log(e);
+            return res.status(500).json({ message: "Upload avatar error" });
         }
     }
 }

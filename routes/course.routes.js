@@ -6,7 +6,6 @@ const courseController = require("../controller/courseController");
 // router.post("/upload", authMiddleWare, courseController.uploadCourse);
 router.get("", courseController.getCourses);
 router.delete("/", authMiddleWare, courseController.deleteCourse);
-router.post("/avatar", authMiddleWare, courseController.uploadAvatar);
 router.get("/profile", courseController.getProfileCourse);
 router.post("/course", authMiddleWare, courseController.uploadNewCourse);
 router.get("/teacher-profile", courseController.getTeacherProfile);
