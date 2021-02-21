@@ -151,10 +151,15 @@ class courseController {
 
     async createComment(req, res) {
         try {
-            const { text } = req.body;
+
+            const commentPhoto = req.files.file;
+            const { courseId, text } = req.body;
+            const Path = path.join(__dirname, `../static/commentPhotos`);
+
+            commentPhoto.mv(Path + "/" + commentPhoto);
 
             TeacherCourse.findOne({
-                _id: req.query.courseId,
+                _id: courseId,
             })
                 .select(
                     "-content -smallDescription -fullDescription -profession -competence -user -author -price -__v"
@@ -162,6 +167,7 @@ class courseController {
                 .exec(async function (err, course) {
                     course.comments.unshift({
                         text: text,
+                        photo: commentPhoto.name,
                         user: req.user.id,
                     });
 
