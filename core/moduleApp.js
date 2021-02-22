@@ -19,6 +19,7 @@ module.exports.createUseApp = (app) => {
     app.use("/api/teacher", courseContentRouter);
 
     app.use(express.static("static/coursePhotos"));
+    app.use(express.static("static/commentPhotos"));
     app.use(express.static("static"));
     app.use(express.static("static/directions"));
     app.use(express.static("static/avatars"));

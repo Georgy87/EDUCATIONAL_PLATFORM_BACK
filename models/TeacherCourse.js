@@ -14,6 +14,7 @@ const TeacherCourse = new Schema(
         comments: [
             {
                 text: { type: String },
+                photo: { type: String},
                 user: {
                     required: true,
                     ref: "User",
@@ -26,6 +27,7 @@ const TeacherCourse = new Schema(
                 comments: [
                     {
                         text: { type: String },
+                        photo: { type: String},
                         user: {
                             required: true,
                             ref: "User",

@@ -1,5 +1,6 @@
 // const Course = require("../models/Course");
 const User = require("../models/User");
+const Uuid = require("uuid");
 const path = require("path");
 const fs = require("fs");
 
@@ -7,6 +8,7 @@ const jwt = require("jsonwebtoken");
 const config = require("config");
 const TeacherCourse = require("../models/TeacherCourse");
 const { populate } = require("../models/User");
+
 
 class courseController {
     async uploadNewCourse(req, res) {
@@ -151,12 +153,16 @@ class courseController {
 
     async createComment(req, res) {
         try {
+            let file;
+            const photoName = Uuid.v4() + ".jpg";
 
-            const commentPhoto = req.files.file;
+            if (req.files) {
+                file = req.files.file;
+                const Path = path.join(__dirname, `../static/commentPhotos`);
+                file.mv(Path + "/" + photoName);
+            }
+
             const { courseId, text } = req.body;
-            const Path = path.join(__dirname, `../static/commentPhotos`);
-
-            commentPhoto.mv(Path + "/" + commentPhoto);
 
             TeacherCourse.findOne({
                 _id: courseId,
@@ -165,12 +171,18 @@ class courseController {
                     "-content -smallDescription -fullDescription -profession -competence -user -author -price -__v"
                 )
                 .exec(async function (err, course) {
-                    course.comments.unshift({
-                        text: text,
-                        photo: commentPhoto.name,
-                        user: req.user.id,
-                    });
-
+                    if (req.files) {
+                        course.comments.unshift({
+                            text: text,
+                            photo: photoName,
+                            user: req.user.id,
+                        });
+                    } else {
+                        course.comments.unshift({
+                            text: text,
+                            user: req.user.id,
+                        });
+                    }
                     course.save(async (err) => {
                         if (err) {
                             return res.status(400).json({
@@ -400,7 +412,7 @@ class courseController {
         try {
             User.findOne({ _id: req.user.id }).exec(async (err, user) => {
                 const ids = user.purchasedCourses;
-                TeacherCourse.find({ _id: { $in: ids } }).select( "-content -profession -competence -user -price -__v -comments -createdAt -updatedAt -avatar -fullDescription").exec((err, courses) => {
+                TeacherCourse.find({ _id: { $in: ids } }).select("-content -profession -competence -user -price -__v -comments -createdAt -updatedAt -avatar -fullDescription").exec((err, courses) => {
                     if (err) {
                         return res.status(400).json({
                             status: 'Get purchased purses error',

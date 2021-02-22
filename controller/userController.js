@@ -255,6 +255,7 @@ class UserController {
     async uploadAvatar(req, res) {
         try {
             const file = req.files.file;
+
             const avatarName = Uuid.v4() + ".jpg";
 
             const Path = path.join(__dirname, `../static/avatars`);
@@ -275,10 +276,10 @@ class UserController {
                     });
                 }
 
-                res.json({
-                    status: "success",
-                    message: "Upload avatar done",
-                });
+                // res.json({
+                //     status: "success",
+                //     message: "Upload avatar done",
+                // });
 
                 return res.json({
                     token,
