@@ -247,35 +247,24 @@ class courseContentController {
             const { moduleId, lessonId, linkName, linksToResources } = req.body;
 
             const courseId = req.query.courseId;
-            TeacherCourse.findOne({
-                user: req.user.id,
-                _id: courseId
-            }).exec((err, course) => {
-                if (err) {
-                    return res.status(400).json({
-                        status: "Send links to resources error",
-                        message: err,
+
+            Modules.findOneAndUpdate({ 'moduleContent._id': lessonId }, {
+                $push: {
+                    'moduleContent.$.linksToResources':  { linkName, linksToResources }
+                }}, (err, module) => {
+                    module.save((err, data) => {
+                        Modules.find({ course: courseId }).exec((err, course) => {
+                            if (err) {
+                                return res.status(400).json({
+                                    status: "Send links to resources error",
+                                    message: err,
+                                });
+                            }
+                            return res.json({ content: course });
+                        });
                     });
                 }
-
-                course.content.map((element) => {
-                    if (element._id.toString() === moduleId) {
-                        element.moduleContent.map((element) => {
-                            if (element._id.toString() === lessonId) {
-                                element.linksToResources = [
-                                    ...element.linksToResources,
-                                    { linkName, linksToResources },
-                                ];
-                                course.save();
-                            }
-                        });
-                    }
-                });
-
-                return res.json(course);
-            });
-
-
+            )
         } catch (e) {
             return res.status(500).json({ message: "Send links error" });
         }
