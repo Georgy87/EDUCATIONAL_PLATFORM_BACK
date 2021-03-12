@@ -9,18 +9,17 @@ const config = require("config");
 const TeacherCourse = require("../models/TeacherCourse");
 const { populate } = require("../models/User");
 
-
 class courseController {
     async uploadNewCourse(req, res) {
         try {
-            const fileVideo = req.files.file[0].name;
-            const photo = req.files.file[1].name;
+            // const fileVideo = req.files.file[0].name;
+            const photo = req.files.file.name;
 
-            const videoMv = req.files.file[0];
-            const photoMv = req.files.file[1];
+            // const videoMv = req.files.file[0];
+            const photoMv = req.files.file;
 
-            const pathVideos = path.join(__dirname, `../static/videos`);
-            videoMv.mv(pathVideos + "/" + videoMv.name);
+            // const pathVideos = path.join(__dirname, `../static/videos`);
+            // videoMv.mv(pathVideos + "/" + videoMv.name);
 
             const pathPhotos = path.join(__dirname, `../static/coursePhotos`);
             photoMv.mv(pathPhotos + "/" + photoMv.name);
@@ -31,8 +30,8 @@ class courseController {
                 price,
                 smallDescription,
                 fullDescription,
-                lesson,
-                module,
+                // lesson,
+                // module,
             } = req.body;
 
             const dbFile = new TeacherCourse({
@@ -47,21 +46,7 @@ class courseController {
                 smallDescription,
                 fullDescription,
                 comments: [],
-                content: [
-                    {
-                        module: module,
-                        moduleHours: 0,
-                        moduleMinutes: 0,
-                        moduleSeconds: 0,
-                        moduleContent: [
-                            {
-                                fileVideo: fileVideo,
-                                lesson: lesson,
-                                lessonTime: "",
-                            },
-                        ],
-                    },
-                ],
+                content: [],
             });
 
             dbFile.save((err) => {

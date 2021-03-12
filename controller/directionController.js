@@ -1,4 +1,3 @@
-const File = require("../models/Course");
 const TeacherCourse = require("../models/TeacherCourse");
 const Direction = require("../models/Direction");
 const path = require("path");
@@ -41,7 +40,6 @@ class directionController {
             // let files = await Direction.find({ user: req.user.id });
             let files = await Direction.find();
 
-
             await res.json(files);
         } catch (e) {
             console.log(e);
@@ -56,7 +54,7 @@ class directionController {
             files = files.filter((file) =>
                 file.profession.includes(directionName)
             );
-           
+
             await res.json(files);
         } catch (e) {
             console.log(e);
@@ -65,7 +63,7 @@ class directionController {
 
     async deleteDirectionAndCourses(req, res) {
         try {
-            let files = await File.find({ profession: req.query.direction });
+            // let files = await File.find({ profession: req.query.direction });
             const direction = await Direction.findOne({ _id: req.query.id });
 
             files.map((el) => {

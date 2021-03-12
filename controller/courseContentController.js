@@ -6,7 +6,8 @@ const fs = require("fs");
 const Uuid = require("uuid");
 const jwt = require("jsonwebtoken");
 const config = require("config");
-var mongoose = require("mongoose");
+const mongoose = require("mongoose");
+const Modules = require("../models/Modules");
 
 class courseContentController {
     async uploadContentCourse(req, res) {
@@ -48,7 +49,48 @@ class courseContentController {
                     });
                 }
             });
+        } catch (e) {
+            console.log(e);
+            return res
+                .status(500)
+                .json({ message: "Upload content course error" });
+        }
+    }
 
+    async uploadContentCourseNew(req, res) {
+        try {
+            const courseId = req.query.courseId;
+
+            if (req.files != null) {
+                const fileVideo = req.files.file.name;
+                const fileMv = req.files.file;
+                const { lesson, module } = req.body;
+                const modules = new Modules({
+                    course: courseId,
+                    module: module,
+                    moduleHours: 0,
+                    moduleMinutes: 0,
+                    moduleSeconds: 0,
+                    moduleContent: [
+                        {
+                            fileVideo: fileVideo,
+                            lesson: lesson,
+                            lessonTime: ''
+                        },
+                    ],
+                });
+
+                const Path = path.join(__dirname, `../static/videos`);
+                fileMv.mv(Path + "/" + fileMv.name);
+                modules.save().then((module) => {
+                    TeacherCourse.findOne({ _id: courseId, user: req.user.id }).exec((err, course) => {
+                        // course.content.push(module);
+                        course.save(() => {
+                            return res.json({ content: course.content });
+                        });
+                    });
+                });
+            }
 
         } catch (e) {
             console.log(e);
@@ -61,17 +103,15 @@ class courseContentController {
     async getContentCourses(req, res) {
         try {
             const courseId = req.query.courseId;
-            TeacherCourse.findOne({
-                _id: courseId,
-                user: req.user.id,
-            }).exec((err, course) => {
+
+            Modules.find({ course: courseId }).exec((err, course) => {
                 if (err) {
                     return res.status(404).json({
                         status: "Get content courses error",
                         message: err,
                     });
                 }
-                return res.json(course);
+                return res.json({ content: course });
             });
         } catch (e) {
             return res
@@ -101,32 +141,35 @@ class courseContentController {
             const courseId = req.query.courseId;
             const fileVideo = req.files.file.name;
             const fileMv = req.files.file;
-            TeacherCourse.findOne({
-                user: req.user.id,
-                _id: courseId
-            }).exec((err, course) => {
+
+            Modules.updateOne({ course: courseId, _id: moduleId }, {
+                $push: {
+                    moduleContent: {
+                        fileVideo,
+                        lesson,
+                        lessonTime: '',
+                        linksToResources: [],
+                    }
+                }
+            }, function (err, result) {
                 if (err) {
-                    return res.status(404).json({
+                    return res.status(500).json({
                         status: "Upload lesson error",
                         message: err,
                     });
                 }
-                let val = 0;
-                course.content.map((element) => {
-                    if (element._id.toString() === moduleId) {
-                        element.moduleContent.push({
-                            fileVideo,
-                            lesson,
-                            lessonTime: '',
-                            linksToResources: [],
-                        });
-                    }
-                    val += element.moduleContent.length;
-                });
+
                 const Path = path.join(__dirname, `../static/videos`);
                 fileMv.mv(Path + "/" + fileMv.name);
-                course.save();
-                return res.json(course);
+
+                Modules.find({ course: courseId }).exec((err, course) => {
+                    if (err) {
+                        return res.status(404).json({
+                            message: err,
+                        });
+                    }
+                    return res.json({ content: course });
+                });
             });
         } catch (e) {
             return res.status(500).json({ message: "error" });
@@ -137,28 +180,34 @@ class courseContentController {
         try {
             const { moduleId, lessonId, videoName, hours, minutes, seconds } = req.body;
             const courseId = req.query.courseId;
-            TeacherCourse.findOne({ user: req.user.id, _id: courseId }).exec((err, course) => {
-                if (err) {
-                    return res.status(400).json({
-                        status: "`Delete lesson error",
-                        message: err,
-                    });
-                }
 
-                course.content.map((element) => {
-                    if (element._id.toString() === moduleId) {
-                        element.moduleHours -= hours;
-                        element.moduleMinutes -= minutes;
-                        element.moduleSeconds -= seconds;
-                        const filter = element.moduleContent.filter(element => element._id.toString() !== lessonId);
-                        element.moduleContent = filter;
-                        course.save();
+            Modules.findOneAndUpdate(
+                { _id: moduleId },
+                { $pull: { moduleContent: { _id: lessonId } } }, function (err, module) {
+                    module.moduleHours -= hours;
+                    module.moduleMinutes -= minutes;
+                    module.moduleSeconds -= seconds;
+                    if (err) {
+                        return res.status(400).json({
+                            status: "`Delete lesson error",
+                            message: err,
+                        });
                     }
+
+                    module.save((err, data) => {
+                        const Path = path.join(__dirname, `../static/videos/${videoName}`);
+                        fs.unlinkSync(Path);
+
+                        Modules.find({ course: courseId }).exec((err, course) => {
+                            if (err) {
+                                return res.status(404).json({
+                                    message: err,
+                                });
+                            }
+                            return res.json({ content: course });
+                        });
+                    });
                 });
-                const Path = path.join(__dirname, `../static/videos/${videoName}`);
-                fs.unlinkSync(Path);
-                return res.json(course);
-            });
         } catch (e) {
             return res
                 .status(500)
@@ -170,29 +219,22 @@ class courseContentController {
         try {
             const { newTitle, lessonId, moduleId } = req.body;
             const courseId = req.query.courseId;
-            TeacherCourse.findOne({
-                user: req.user.id,
-                _id: courseId
-            }).exec((err, course) => {
-                if (err) {
-                    return res.status(400).json({
-                        status: "`Delete lesson title revision error",
-                        message: err,
-                    });
-                }
-                course.content.map((element) => {
-                    if (element._id.toString() === moduleId) {
-                        element.moduleContent.map((element) => {
-                            if (element._id.toString() === lessonId) {
-                                element.lesson = newTitle;
-                                course.save();
-                            }
-                        });
-                    }
-                });
-                return res.json(course);
-            });
 
+            Modules.findOneAndUpdate({ 'moduleContent._id': lessonId }, {
+                $set: { 'moduleContent.$.lesson': newTitle }
+            }, (err, module) => {
+                module.save((err, data) => {
+                    Modules.find({ course: courseId }).exec((err, course) => {
+                        if (err) {
+                            return res.status(400).json({
+                                status: "`Update lesson title revision error",
+                                message: err,
+                            });
+                        }
+                        return res.json({ content: course });
+                    });
+                });
+            })
         } catch (e) {
             return res
                 .status(500)

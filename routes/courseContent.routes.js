@@ -3,7 +3,7 @@ const router = new Router();
 const authMiddleWare = require("../middleware/auth.middleware");
 const courseContentController  = require("../controller/courseContentController");
 
-router.post("/content", authMiddleWare, courseContentController.uploadContentCourse);
+router.post("/content", authMiddleWare, courseContentController.uploadContentCourseNew);
 router.get("/courses", authMiddleWare, courseContentController.getContentCourses);
 router.post("/lesson-upload", authMiddleWare, courseContentController.uploadLesson);
 router.post("/lesson-delete", authMiddleWare, courseContentController.deleteLesson);
