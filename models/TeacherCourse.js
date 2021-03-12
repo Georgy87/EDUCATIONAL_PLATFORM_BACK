@@ -42,7 +42,7 @@ const TeacherCourse = new Schema(
                 ],
             },
         ],
-        content: { type: Array },
+        content: [{ type: Schema.Types.ObjectId, ref: "Modules", require: true }],
     },
     {
         timestamps: true,

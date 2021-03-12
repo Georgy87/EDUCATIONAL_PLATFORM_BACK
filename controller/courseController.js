@@ -46,7 +46,6 @@ class courseController {
                 smallDescription,
                 fullDescription,
                 comments: [],
-                content: [],
             });
 
             dbFile.save((err) => {
@@ -122,14 +121,14 @@ class courseController {
     async getProfileCourse(req, res) {
         try {
             const id = req.query.id;
-            TeacherCourse.findOne({ _id: id }).populate('user').exec((err, course) => {
+            TeacherCourse.find({ _id: id }).populate('user').populate('content').exec((err, course) => {
                 if (err) {
                     return res.status(404).json({
                         status: "Course profile not found",
                         message: err,
                     });
                 }
-                return res.json(course);
+                return res.json(course[0]);
             });
         } catch (e) {
             console.log(e);
@@ -416,14 +415,16 @@ class courseController {
 
     async getCourseForTraining(req, res) {
         try {
-            TeacherCourse.findOne({ _id: req.query.id }).exec((err, course) => {
+            const id = req.query.id;
+            TeacherCourse.find({ _id: id }).populate('user').populate('content').exec((err, course) => {
                 if (err) {
-                    return res.status(400).json({
-                        status: 'Get course for training error',
-                        message: err
+                    return res.status(404).json({
+                        status: "Get course for training error",
+                        message: err,
                     });
                 }
-                res.json({ course });
+                
+                return res.json(course[0]);
             });
 
         } catch (error) {

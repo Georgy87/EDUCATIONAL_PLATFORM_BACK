@@ -65,6 +65,7 @@ class courseContentController {
                 const fileVideo = req.files.file.name;
                 const fileMv = req.files.file;
                 const { lesson, module } = req.body;
+
                 const modules = new Modules({
                     course: courseId,
                     module: module,
@@ -82,16 +83,24 @@ class courseContentController {
 
                 const Path = path.join(__dirname, `../static/videos`);
                 fileMv.mv(Path + "/" + fileMv.name);
-                modules.save().then((module) => {
-                    TeacherCourse.findOne({ _id: courseId, user: req.user.id }).exec((err, course) => {
-                        // course.content.push(module);
-                        course.save(() => {
-                            return res.json({ content: course.content });
+
+                modules.save((err, dataModule) => {
+
+                    TeacherCourse.findOneAndUpdate({ _id: courseId }, {
+                        $push: { 'content': dataModule._id.toString() }
+                    }, (err, data) => {
+                        Modules.find({ course: courseId }).exec((err, course) => {
+                            if (err) {
+                                return res.status(404).json({
+                                    status: "Upload content courses error",
+                                    message: err,
+                                });
+                            }
+                            return res.json({ content: course });
                         });
                     });
-                });
+                })
             }
-
         } catch (e) {
             console.log(e);
             return res
@@ -250,21 +259,23 @@ class courseContentController {
 
             Modules.findOneAndUpdate({ 'moduleContent._id': lessonId }, {
                 $push: {
-                    'moduleContent.$.linksToResources':  { linkName, linksToResources }
-                }}, (err, module) => {
-                    module.save((err, data) => {
-                        Modules.find({ course: courseId }).exec((err, course) => {
-                            if (err) {
-                                return res.status(400).json({
-                                    status: "Send links to resources error",
-                                    message: err,
-                                });
-                            }
-                            return res.json({ content: course });
-                        });
-                    });
+                    'moduleContent.$.linksToResources': { linkName, linksToResources }
                 }
+            }, (err, module) => {
+                module.save((err, data) => {
+                    Modules.find({ course: courseId }).exec((err, course) => {
+                        if (err) {
+                            return res.status(400).json({
+                                status: "Send links to resources error",
+                                message: err,
+                            });
+                        }
+                        return res.json({ content: course });
+                    });
+                });
+            }
             )
+
         } catch (e) {
             return res.status(500).json({ message: "Send links error" });
         }
