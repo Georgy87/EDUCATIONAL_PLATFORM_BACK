@@ -10,53 +10,6 @@ const mongoose = require("mongoose");
 const Modules = require("../models/Modules");
 
 class courseContentController {
-    async uploadContentCourse(req, res) {
-        try {
-            const courseId = req.query.courseId;
-            TeacherCourse.findOne({
-                _id: courseId,
-                user: req.user.id,
-            }).exec((err, course) => {
-                if (err) {
-                    return res.status(400).json({
-                        status: "Upload content course error",
-                        message: err,
-                    });
-                }
-                if (req.files != null) {
-                    const fileVideo = req.files.file.name;
-                    const fileMv = req.files.file;
-                    const { lesson, module } = req.body;
-
-                    course.content.push({
-                        module: module,
-                        moduleHours: 0,
-                        moduleMinutes: 0,
-                        moduleSeconds: 0,
-                        moduleContent: [
-                            {
-                                fileVideo: fileVideo,
-                                lesson: lesson,
-                                lessonTime: ''
-                            },
-                        ],
-                    });
-                    // console.log(course.content.length);
-                    const Path = path.join(__dirname, `../static/videos`);
-                    fileMv.mv(Path + "/" + fileMv.name);
-                    course.save(() => {
-                        return res.json(course);
-                    });
-                }
-            });
-        } catch (e) {
-            console.log(e);
-            return res
-                .status(500)
-                .json({ message: "Upload content course error" });
-        }
-    }
-
     async uploadContentCourseNew(req, res) {
         try {
             const courseId = req.query.courseId;
@@ -286,31 +239,42 @@ class courseContentController {
             const { moduleId, lessonId, hours, minutes, seconds } = req.body;
 
             const courseId = req.query.courseId;
-            TeacherCourse.findOne({
-                user: req.user.id,
-                _id: courseId
-            }).exec((err, course) => {
+
+            Modules.findOneAndUpdate({ _id: moduleId }, {
+                $set: { 'moduleHourse': hours, 'moduleMinutes': minutes, 'moduleSeconds': seconds }
+            }, (err, module) => {
                 if (err) {
                     return res.status(400).json({
-                        status: "Set time module and lessons",
+                        status: "Set time module and lessons error",
                         message: err,
                     });
                 }
-                course.content.map((element) => {
-                    if (element._id.toString() === moduleId) {
-                        element.moduleHours += hours;
-                        element.moduleMinutes += minutes;
-                        element.moduleSeconds += seconds;
-                        // course.save();
-                        element.moduleContent.map((element) => {
-                            if (element._id.toString() === lessonId) {
-                                element.lessonTime = hours + ":" + minutes + ":" + seconds;
-                            }
+                module.save(() => {
+                    Modules.findOneAndUpdate({ 'moduleContent._id': lessonId }, {
+                        $set: {
+                            'moduleContent.$.lessonTime': hours + ":" + minutes + ":" + seconds
+                        }
+                    }, (err, lesson) => {
+                        if (err) {
+                            return res.status(400).json({
+                                status: "Set time lesson error",
+                                message: err,
+                            });
+                        }
+
+                        lesson.save(() => {
+                            Modules.find({ course: courseId }).exec((err, course) => {
+                                if (err) {
+                                    return res.status(400).json({
+                                        status: "Send links to resources error",
+                                        message: err,
+                                    });
+                                }
+
+                                return res.json({ content: course });
+                            });
                         });
-                    }
-                });
-                course.save(err => {
-                    res.json(course);
+                    })
                 });
             });
         } catch (e) {
