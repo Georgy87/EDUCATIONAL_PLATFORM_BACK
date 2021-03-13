@@ -22,11 +22,12 @@ const User = new Schema({
         timestamps: true,
     });
 
-User.virtual("isOnline").get(function (this) {
+UserSchema.virtual("isOnline").get(function (this) {
+    //@ts-ignore
     return differenceInMinutes(parseISO(new Date().toISOString()), this.last_seen) < 2;
 });
 
-User.set("toJSON", {
+UserSchema.set("toJSON", {
     virtuals: true
 });
 

@@ -13,7 +13,6 @@ class courseContentController {
     async uploadContentCourseNew(req, res) {
         try {
             const courseId = req.query.courseId;
-<<<<<<< HEAD
 
             if (req.files != null) {
                 const fileVideo = req.files.file.name;
@@ -40,34 +39,6 @@ class courseContentController {
 
                 modules.save((err, dataModule) => {
 
-=======
-
-            if (req.files != null) {
-                const fileVideo = req.files.file.name;
-                const fileMv = req.files.file;
-                const { lesson, module } = req.body;
-
-                const modules = new Modules({
-                    course: courseId,
-                    module: module,
-                    moduleHours: 0,
-                    moduleMinutes: 0,
-                    moduleSeconds: 0,
-                    moduleContent: [
-                        {
-                            fileVideo: fileVideo,
-                            lesson: lesson,
-                            lessonTime: ''
-                        },
-                    ],
-                });
-
-                const Path = path.join(__dirname, `../static/videos`);
-                fileMv.mv(Path + "/" + fileMv.name);
-
-                modules.save((err, dataModule) => {
-
->>>>>>> 438e13e2b182fa88a67f7f96a242947da0435d91
                     TeacherCourse.findOneAndUpdate({ _id: courseId }, {
                         $push: { 'content': dataModule._id.toString() }
                     }, (err, data) => {
@@ -269,11 +240,7 @@ class courseContentController {
 
             const courseId = req.query.courseId;
 
-<<<<<<< HEAD
-            const module = await Modules.findOneAndUpdate({ _id: moduleId }, {
-=======
             Modules.findOneAndUpdate({ _id: moduleId }, {
->>>>>>> 438e13e2b182fa88a67f7f96a242947da0435d91
                 $set: { 'moduleHourse': hours, 'moduleMinutes': minutes, 'moduleSeconds': seconds }
             }, (err, module) => {
                 if (err) {
@@ -282,14 +249,6 @@ class courseContentController {
                         message: err,
                     });
                 }
-<<<<<<< HEAD
-
-                module.moduleHours += hours;
-                module.moduleMinutes += minutes;
-                module.moduleSeconds += seconds;
-
-=======
->>>>>>> 438e13e2b182fa88a67f7f96a242947da0435d91
                 module.save(() => {
                     Modules.findOneAndUpdate({ 'moduleContent._id': lessonId }, {
                         $set: {
@@ -311,10 +270,6 @@ class courseContentController {
                                         message: err,
                                     });
                                 }
-<<<<<<< HEAD
-                                // console.log(course);
-=======
->>>>>>> 438e13e2b182fa88a67f7f96a242947da0435d91
 
                                 return res.json({ content: course });
                             });
@@ -322,34 +277,6 @@ class courseContentController {
                     })
                 });
             });
-
-            // TeacherCourse.findOne({
-            //     user: req.user.id,
-            //     _id: courseId
-            // }).exec((err, course) => {
-            //     if (err) {
-            //         return res.status(400).json({
-            //             status: "Set time module and lessons",
-            //             message: err,
-            //         });
-            //     }
-            //     course.content.map((element) => {
-            //         if (element._id.toString() === moduleId) {
-            //             element.moduleHours += hours;
-            //             element.moduleMinutes += minutes;
-            //             element.moduleSeconds += seconds;
-            //             // course.save();
-            //             element.moduleContent.map((element) => {
-            //                 if (element._id.toString() === lessonId) {
-            //                     element.lessonTime = hours + ":" + minutes + ":" + seconds;
-            //                 }
-            //             });
-            //         }
-            //     });
-            //     course.save(err => {
-            //         res.json(course);
-            //     });
-            // });
         } catch (e) {
             return res.status(500).json({ message: "Send time error" });
         }

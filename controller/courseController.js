@@ -423,7 +423,11 @@ class courseController {
                         message: err,
                     });
                 }
+<<<<<<< HEAD
 
+=======
+                
+>>>>>>> 438e13e2b182fa88a67f7f96a242947da0435d91
                 return res.json(course[0]);
             });
 
