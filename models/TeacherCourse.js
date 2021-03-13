@@ -14,7 +14,7 @@ const TeacherCourse = new Schema(
         comments: [
             {
                 text: { type: String },
-                photo: { type: String},
+                photo: { type: String },
                 user: {
                     required: true,
                     ref: "User",
@@ -27,7 +27,7 @@ const TeacherCourse = new Schema(
                 comments: [
                     {
                         text: { type: String },
-                        photo: { type: String},
+                        photo: { type: String },
                         user: {
                             required: true,
                             ref: "User",
@@ -42,28 +42,7 @@ const TeacherCourse = new Schema(
                 ],
             },
         ],
-        content: [
-            {
-                module: String,
-                moduleHours: Number,
-                moduleMinutes: Number,
-                moduleSeconds: Number,
-                moduleContent: [
-                    {
-                        fileVideo: String,
-                        lesson: String,
-                        lessonTime: String,
-                        linksToResources: [
-                            {
-                                linkName: String,
-                                linksToResources: String,
-                            },
-                        ],
-                    },
-                ],
-                id: ObjectId,
-            },
-        ],
+        content: [{ type: Schema.Types.ObjectId, ref: "Modules", require: true }],
     },
     {
         timestamps: true,
