@@ -7,9 +7,10 @@ const { createUseApp } = require("./core/moduleApp");
 const { createServer } = require("http");
 const { createSocket } = require('./core/socket');
 const { Server, Socket } = require("socket.io");
+const socket = require("socket.io");
 
 const http = createServer(app);
-// const io = createSocket(http);
+// createSocket(http);
 
 createUseApp(app);
 
@@ -34,10 +35,10 @@ const start = async () => {
 
         io.on("connection", function(socket) {
             console.log("Connected");
-            socket.emit("104", "Привет!!");
-            socket.on("444", function(msg) {
-                console.log(msg);
-            });
+            // socket.emit("104", "Гош");
+            // socket.on("444", function(msg) {
+            //     console.log(msg);
+            // });
         });
 
     } catch (e) {
