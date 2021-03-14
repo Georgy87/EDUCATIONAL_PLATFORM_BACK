@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// const File = require("../models/Course");
-=======
->>>>>>> 438e13e2b182fa88a67f7f96a242947da0435d91
 const TeacherCourse = require("../models/TeacherCourse");
 const Direction = require("../models/Direction");
 const path = require("path");

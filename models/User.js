@@ -1,6 +1,6 @@
 const { Schema, model } = require("mongoose");
 
-import { differenceInMinutes, parseISO } from "date-fns";
+const { differenceInMinutes, parseISO } = require("date-fns");
 
 const User = new Schema({
     email: { type: String, required: true, unique: true },
@@ -20,14 +20,15 @@ const User = new Schema({
 },
     {
         timestamps: true,
-    });
+    }
+);
 
-UserSchema.virtual("isOnline").get(function (this) {
-    //@ts-ignore
+User.virtual("isOnline").get(function () {
+    console.log(this)
     return differenceInMinutes(parseISO(new Date().toISOString()), this.last_seen) < 2;
 });
 
-UserSchema.set("toJSON", {
+User.set("toJSON", {
     virtuals: true
 });
 
