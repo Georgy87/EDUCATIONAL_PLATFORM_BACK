@@ -1,7 +1,7 @@
-import express from "express";
-import { DialogModel, IDialog } from "../models/Dialog";
-import MessageModel from "../models/Message";
-import socket from "socket.io";
+
+const DialogModel = require("../models/Dialogs");
+// import MessageModel from "../models/Message";
+// import socket from "socket.io";
 
 class DialogController {
     constructor(io) {
@@ -41,32 +41,34 @@ class DialogController {
         };
 
         const dialog = new DialogModel(postData);
-
         dialog
-            .save()
-            .then((dialogObj) => {
-                const message = new MessageModel({
-                    text: req.body.text,
-                    user: req.user._id,
-                    dialog: dialogObj._id
-                });
+            .save(() => {
+                res.json({dialog});
+            })
 
-                message
-                    .save()
-                    .then(() => {
-                        dialogObj.lastMessage = message._id;
-                        dialogObj.save().then(() => {
-                            res.json(dialogObj);
-                            this.io.emit("SERVER:DIALOG_CREATED", {
-                                ...postData,
-                                dialog: dialogObj
-                            });
-                        });
-                    })
-                    .catch(reason => {
-                        res.json(reason);
-                    });
-            });
+            // .then((dialogObj) => {
+            //     const message = new MessageModel({
+            //         text: req.body.text,
+            //         user: req.user._id,
+            //         dialog: dialogObj._id
+            //     });
+
+            //     message
+            //         .save()
+            //         .then(() => {
+            //             dialogObj.lastMessage = message._id;
+            //             dialogObj.save().then(() => {
+            //                 res.json(dialogObj);
+            //                 this.io.emit("SERVER:DIALOG_CREATED", {
+            //                     ...postData,
+            //                     dialog: dialogObj
+            //                 });
+            //             });
+            //         })
+            //         .catch(reason => {
+            //             res.json(reason);
+            //         });
+            // });
 
     }
 
@@ -136,4 +138,4 @@ class DialogController {
     }
 }
 
-export default DialogController;
+module.exports = DialogController;

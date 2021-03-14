@@ -14,4 +14,4 @@ const DialogSchema = new Schema(
     }
 );
 
-export const DialogModel = model<IDialog>("Dialog", DialogSchema);
+module.exports = model("Dialog", DialogSchema);

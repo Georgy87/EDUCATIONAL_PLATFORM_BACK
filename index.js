@@ -10,9 +10,8 @@ const { Server, Socket } = require("socket.io");
 const socket = require("socket.io");
 
 const http = createServer(app);
-// createSocket(http);
 
-createUseApp(app);
+const io = createSocket(http);
 
 const start = async () => {
     try {
@@ -26,20 +25,7 @@ const start = async () => {
             console.log("Server started on port", PORT);
         });
 
-        const io = new Server(http, {
-            cors: {
-                origin: "*",
-                methods: ["GET", "POST"],
-            },
-        });
-
-        io.on("connection", function(socket) {
-            console.log("Connected");
-            // socket.emit("104", "Гош");
-            // socket.on("444", function(msg) {
-            //     console.log(msg);
-            // });
-        });
+        createUseApp(app, io);
 
     } catch (e) {
         console.log(e);
