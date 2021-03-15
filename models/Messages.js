@@ -1,4 +1,4 @@
-import { Schema, Document, model } from "mongoose";
+const { Schema, model } = require("mongoose");
 
 const MessageSchema = new Schema(
     {

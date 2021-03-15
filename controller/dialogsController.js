@@ -1,6 +1,6 @@
 
 const DialogModel = require("../models/Dialogs");
-// import MessageModel from "../models/Message";
+const MessageModel = require("../models/Messages");
 // import socket from "socket.io";
 
 class DialogController {
@@ -42,33 +42,30 @@ class DialogController {
 
         const dialog = new DialogModel(postData);
         dialog
-            .save(() => {
-                res.json({dialog});
-            })
+            .save()
+            .then((dialogObj) => {
+                const message = new MessageModel({
+                    text: req.body.text,
+                    user: req.user._id,
+                    dialog: dialogObj._id
+                });
 
-            // .then((dialogObj) => {
-            //     const message = new MessageModel({
-            //         text: req.body.text,
-            //         user: req.user._id,
-            //         dialog: dialogObj._id
-            //     });
-
-            //     message
-            //         .save()
-            //         .then(() => {
-            //             dialogObj.lastMessage = message._id;
-            //             dialogObj.save().then(() => {
-            //                 res.json(dialogObj);
-            //                 this.io.emit("SERVER:DIALOG_CREATED", {
-            //                     ...postData,
-            //                     dialog: dialogObj
-            //                 });
-            //             });
-            //         })
-            //         .catch(reason => {
-            //             res.json(reason);
-            //         });
-            // });
+                message
+                    .save()
+                    .then(() => {
+                        dialogObj.lastMessage = message._id;
+                        dialogObj.save().then(() => {
+                            res.json(dialogObj);
+                            this.io.emit("SERVER:DIALOG_CREATED", {
+                                ...postData,
+                                dialog: dialogObj
+                            });
+                        });
+                    })
+                    .catch(reason => {
+                        res.json(reason);
+                    });
+            });
 
     }
 
