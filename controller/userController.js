@@ -291,6 +291,22 @@ class UserController {
             return res.status(500).json({ message: "Upload avatar error" });
         }
     }
+    findUsers = (req, res) => {
+        const query = req.query.query;
+        console.log(query);
+        User.find()
+            .or([
+                { fullname: new RegExp(query, "i") },
+                { email: new RegExp(query, "i") }
+            ])
+            .then((users) => res.json(users))
+            .catch((err) => {
+                return res.status(404).json({
+                    status: "error",
+                    message: err
+                });
+            });
+    };
 }
 
 module.exports = new UserController();
